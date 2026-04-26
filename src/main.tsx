@@ -1,4 +1,4 @@
-import { StrictMode, lazy, Suspense, useState, useEffect, useRef, type ComponentType } from 'react'
+import { StrictMode, lazy, Suspense, useState, useEffect, useRef, type ComponentType, type ReactNode } from 'react'
 import { hydrateRoot, createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, useLocation, Link } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
