@@ -11,7 +11,9 @@ A fully re-branded personal portfolio site for **Vijay Panwar** (forked from San
 - **GitHub repo**: `https://github.com/Voldy75/cv-vijaypanwar`
 - **Branch**: `main` — clean, up to date with remote
 - **Unstaged change**: `src/CareerOps.tsx` has a trivial auto-generated star-count drift (`35.8K → 36.0K`) from the build script that updates GitHub stats. This is cosmetic noise from the build pipeline and can be committed or ignored.
-- **Vercel CLI token has expired** — `vercel ls` returns "token not valid". Run `vercel login` before using the CLI. The deploy in this session was done before the token expired.
+- **Vercel CLI auth is working** (`voldy75`).
+- **Chat feature was re-added** (session 2) using Vercel AI SDK v7 + Gemini via the AI Gateway. It is deployed but returns `GatewayError: Unauthenticated` until `AI_GATEWAY_API_KEY` is set on the Vercel project. **The project currently has ZERO environment variables.**
+- **Redesign is NOT started.** The Claude Design file `Redesign Directions.dc.html` (directions 2a + 3a) could not be reached — see Dead Ends.
 - The site still contains **article pages and content originally written about Santiago's projects** (Jacobo repair shop, Business OS, iRepair, Programmatic SEO, Self-Healing Chatbot, Career Ops). These pages are in-scope for future content replacement but were intentionally left untouched — the user only asked for UI/branding fixes, not content rewrites.
 
 ---
@@ -130,3 +132,37 @@ A fully re-branded personal portfolio site for **Vijay Panwar** (forked from San
   - `upstream` → `https://github.com/santifer/cv-santiago.git` ← old source fork, keep/remove as needed
 - **No `.env.local`** — build scripts that require `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (RAG ingestion) and Langfuse credentials gracefully skip if missing. Build succeeds without them.
 - **Build command** (from `package.json`): `npm run rag:sync && npm run prompt:sync && ... && tsc -b && vite build && ...` — long pipeline but all optional steps degrade gracefully
+
+
+---
+
+# SESSION 2 ADDENDUM (supersedes conflicting notes above)
+
+## What changed
+- `api/chat.js` **rewritten** on Vercel AI SDK v7: `streamText` + `toUIMessageStream` + `createUIMessageStreamResponse`. Model `google/gemini-3.8-flash` via AI Gateway. Dropped the old Anthropic/Langfuse/Supabase-RAG stack. System prompt is grounded in Vijay's real CV.
+- `src/AskChat.tsx` **new** — floating chat widget on `useChat` + `DefaultChatTransport`. Listens for the `openChat` window event.
+- `src/main.tsx` — added `GlobalChat` (lazy, hydration-gated, skipped on `/ops`).
+- Installed `ai@7.0.91`, `@ai-sdk/react@4.0.94`.
+- This **fixed a latent bug**: the "Ask me" nav item in `src/i18n.ts` dispatches `openChat`, which had gone nowhere since the old chat was deleted.
+
+## Verified on production (`cv-vijaypanwar.vercel.app`)
+- Homepage `200`; `AskChat-C3pKrLHH.js` chunk deployed
+- `GET /api/chat` → `405`; `POST {}` → `400 {"error":"messages required"}`
+- Real chat message → stream opens then `{"type":"error"}`. Logs: `GatewayError: Unauthenticated. Configure AI_GATEWAY_API_KEY`
+
+## Dead Ends — session 2
+- **AI Gateway OIDC does not auto-authenticate here.** Deploying with no env vars and hoping Vercel's OIDC covers the gateway does not work — it returns `GatewayError: Unauthenticated`. An explicit `AI_GATEWAY_API_KEY` is required.
+- **Gemini model IDs from memory are wrong.** `gemini-2.5-flash` is stale. Always run `curl -s https://ai-gateway.vercel.sh/v1/models | jq -r '[.data[]|select(.id|startswith("google/"))|.id]|reverse|.[]'`. Newest is `google/gemini-3.8-flash`.
+- **AI SDK is v7, not v6.** `system:` is now `instructions:`; `useChat` needs an explicit `transport: new DefaultChatTransport({api})`; messages render from `.parts`, not `.content`. Read `node_modules/ai/docs/`, do not trust memory.
+- **Claude Design file unreachable from a headless session.** WebFetch on `claude.ai/design/p/...` → `403`. `DesignSync` → needs `/design-login`, which cannot run non-interactively. Vercel's `import-claude-design-from-url` needs a pre-signed public export URL, not the app URL.
+
+## Next steps
+1. **Set the gateway key** (user action — creates/handles a credential):
+   `vercel env add AI_GATEWAY_API_KEY production` then `vercel --prod --yes`.
+   Re-test: `curl -X POST https://cv-vijaypanwar.vercel.app/api/chat -H 'Content-Type: application/json' -d '{"messages":[{"id":"1","role":"user","parts":[{"type":"text","text":"hi"}]}]}'`
+2. **Unblock the redesign**: user runs `/design-login` once in an interactive Claude Code terminal on this machine. Headless sessions then reuse it. After that, `DesignSync` `get_file` on project `b99a5ab2-3a94-47b2-ac9d-6b6ac7e694ba`, implement directions **2a and 3a**, and pull `assets/logos/{burgon,icici,npci-mark,rapipay,zrika}.png` into `public/logos/`.
+3. Note `public/logos/` still holds only Santiago's logos (brenntag, dipusevilla, junta, lilly, santander, xylem). Vijay's five are **not** in the repo yet.
+4. Dead code still present: `src/FloatingChat.tsx`, `src/useVoiceMode.ts`, `src/chatbot-i18n.ts`, `api/voice-token.js`, `api/voice-trace.js`, `api/rag-search.js`. Not imported by the new chat.
+
+## Open questions
+- Redesign reference is `https://www.surajgaud.com` (single-column, chronological, minimal sans-serif, light/neutral, emoji markers, tagged projects). Confirm 2a/3a align with that before building.
