@@ -766,3 +766,12 @@ section[id], footer[id] {
 @media (max-width: 640px) {
   .ed-bleed { margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; }
 }
+
+/* Ask-bar voice control */
+@keyframes ed-voice-pulse {
+  0%   { transform: scale(1);   opacity: 1; }
+  50%  { transform: scale(1.5); opacity: .45; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+.ed-voice-dot { width: 6px; height: 6px; border-radius: 9999px; background: var(--ed-rust); flex: none; }
+.ed-voice[data-listening="true"] .ed-voice-dot { animation: ed-voice-pulse 1s ease-in-out infinite; }

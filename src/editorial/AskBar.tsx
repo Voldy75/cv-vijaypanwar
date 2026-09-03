@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
+import { useVoiceInput } from './useVoiceInput'
 
 const SUGGESTIONS = [
   'how did you scale UPI Lite?',
@@ -21,6 +22,15 @@ export default function AskBar() {
     transport: new DefaultChatTransport({ api: '/api/chat' }),
   })
   const busy = status === 'submitted' || status === 'streaming'
+
+  // Voice → fills the field live; a final result sends it.
+  const voice = useVoiceInput((text, final) => {
+    setInput(text)
+    if (final && text) {
+      sendMessage({ text })
+      setInput('')
+    }
+  })
 
   // ⌘K / Ctrl-K focuses the bar
   useEffect(() => {
@@ -119,6 +129,21 @@ export default function AskBar() {
           className="ed-mono flex-1 min-w-0 bg-transparent outline-none"
           style={{ fontSize: 14, color: 'var(--ed-ink)' }}
         />
+        {voice.supported && (
+          <button
+            type="button"
+            onClick={voice.toggle}
+            className="ed-mono ed-voice inline-flex items-center gap-[6px]"
+            data-listening={voice.listening}
+            aria-pressed={voice.listening}
+            aria-label={voice.listening ? 'Stop listening' : 'Ask by voice'}
+            title={voice.denied ? 'Microphone permission blocked' : voice.listening ? 'listening — click to stop' : 'ask by voice'}
+            style={{ fontSize: 11, color: 'var(--ed-rust)', background: 'none', border: 'none', cursor: 'pointer', flex: 'none', opacity: voice.denied ? 0.5 : 1 }}
+          >
+            <span className="ed-voice-dot" />
+            {voice.listening ? 'listening' : 'voice'}
+          </button>
+        )}
         {busy ? (
           <span className="ed-mono" style={{ fontSize: 11, color: 'var(--ed-muted)' }}>…</span>
         ) : (
