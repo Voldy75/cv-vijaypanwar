@@ -21,6 +21,7 @@ import { StaticRouter, Routes, Route } from 'react-router-dom';
 import Critters from 'critters';
 import App from '../src/App.tsx';
 import EditorialIndex from '../src/editorial/Index.tsx';
+import Playbook from '../src/editorial/Playbook.tsx';
 import GlobalNav from '../src/GlobalNav.tsx';
 import { articleRegistry, type ArticleConfig } from '../src/articles/registry.ts';
 import { buildArticleJsonLd } from '../src/articles/json-ld.ts';
@@ -522,6 +523,53 @@ for (const [lang, slug, altSlug] of [['es', 'privacidad', 'privacy'], ['en', 'pr
   privacyPages.push({ slug, html: result });
 }
 
+// ---------------------------------------------------------------------------
+// Playbook (Claude Design 3a) — /playbook
+// ---------------------------------------------------------------------------
+const playbookPages: { slug: string; html: string }[] = [];
+{
+  const slug = 'playbook';
+  const url = 'https://vijaypanwar.io/playbook';
+  const title = 'The Playbook — notes on shipping AI products | Vijay Panwar';
+  const description = 'A structured approach to building AI-powered products: RAG architecture, agentic systems, LLM observability, and responsible AI governance.';
+
+  let renderedHtml: string;
+  try {
+    renderedHtml = stripReactSSRTags(renderToString(
+      <StaticRouter location={`/${slug}`}>
+        <div>
+          <Suspense fallback={null}>
+            <Routes>
+              <Route path={`/${slug}`} element={<Playbook />} />
+            </Routes>
+          </Suspense>
+        </div>
+      </StaticRouter>
+    ));
+  } catch (err) {
+    console.error('[prerender] SSR failed for playbook:', err);
+    renderedHtml = '';
+  }
+
+  let result = indexHtml
+    .replace('<div id="root"></div>', `<div id="root">${renderedHtml}</div>`)
+    .replace('<html lang="es" class="dark">', '<html lang="en">')
+    .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`)
+    .replace(/<meta name="title" content="[^"]*" \/>/, `<meta name="title" content="${esc(title)}" />`)
+    .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${esc(description)}" />`)
+    .replace(/<link rel="alternate" hreflang="[^"]*" href="[^"]*" \/>\s*/g, '')
+    .replace(/<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${url}" />`)
+    .replace(/<meta property="og:url" content="[^"]*" \/>/, `<meta property="og:url" content="${url}" />`)
+    .replace(/<meta property="og:title" content="[^"]*" \/>/, `<meta property="og:title" content="${esc(title)}" />`)
+    .replace(/<meta property="og:description" content="[^"]*" \/>/, `<meta property="og:description" content="${esc(description)}" />`)
+    .replace(/<meta name="twitter:url" content="[^"]*" \/>/, `<meta name="twitter:url" content="${url}" />`)
+    .replace(/<meta name="twitter:title" content="[^"]*" \/>/, `<meta name="twitter:title" content="${esc(title)}" />`)
+    .replace(/<meta name="twitter:description" content="[^"]*" \/>/, `<meta name="twitter:description" content="${esc(description)}" />`);
+
+  result = result.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/, '');
+  playbookPages.push({ slug, html: result });
+}
+
 async function inlineCriticalCSS() {
   // Home pages
   await writePage(injectedEs, indexPath, 'ES: dist/index.html updated');
@@ -539,6 +587,11 @@ async function inlineCriticalCSS() {
 
   // Privacy pages
   for (const { slug, html } of privacyPages) {
+    await writePage(html, resolve(distDir, slug, 'index.html'), `${slug}: dist/${slug}/index.html created`);
+  }
+
+  // Playbook
+  for (const { slug, html } of playbookPages) {
     await writePage(html, resolve(distDir, slug, 'index.html'), `${slug}: dist/${slug}/index.html created`);
   }
 }
