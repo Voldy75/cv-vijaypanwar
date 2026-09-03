@@ -3,7 +3,6 @@ import { hydrateRoot, createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, useLocation, Link } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import './index.css'
-import App from './App.tsx'
 import GlobalNav from './GlobalNav.tsx'
 import { articleRegistry } from './articles/registry'
 
@@ -158,7 +157,6 @@ const app = (
           <Routes>
             <Route path="/" element={<EditorialIndex />} />
             <Route path="/playbook" element={<Playbook />} />
-            <Route path="/v1" element={<App />} />
             <Route path="/ops" element={<OpsDashboard />} />
             <Route path="/about" element={<AboutPage lang="en" />} />
             <Route path="/privacy" element={<PrivacyPolicy lang="en" />} />
