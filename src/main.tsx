@@ -7,6 +7,7 @@ import App from './App.tsx'
 import GlobalNav from './GlobalNav.tsx'
 import { articleRegistry } from './articles/registry'
 
+const AskChat = lazy(() => import('./AskChat'))
 const MusicToggle = lazy(() => import('./MusicToggle'))
 const OpsDashboard = lazy(() => import('./ops/OpsDashboard'))
 const PrivacyPolicy = lazy(() => import('./PrivacyPolicy'))
@@ -57,6 +58,18 @@ function PageTransition({ children }: { children: ReactNode }) {
     <div key={pathname} style={hasNavigated ? { animation: 'page-fade-in 0.25s ease-out' } : undefined}>
       {children}
     </div>
+  )
+}
+
+function GlobalChat() {
+  const { pathname } = useLocation()
+  const [hydrated, setHydrated] = useState(false)
+  useEffect(() => setHydrated(true), [])
+  if (!hydrated || pathname.startsWith('/ops')) return null
+  return (
+    <Suspense fallback={null}>
+      <AskChat />
+    </Suspense>
   )
 }
 
@@ -151,6 +164,7 @@ const app = (
           </Routes>
         </Suspense>
       </PageTransition>
+      <GlobalChat />
       <GlobalMusic />
       <Analytics />
     </BrowserRouter>
