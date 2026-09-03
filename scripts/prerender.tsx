@@ -20,6 +20,7 @@ import { renderToString } from 'react-dom/server';
 import { StaticRouter, Routes, Route } from 'react-router-dom';
 import Critters from 'critters';
 import App from '../src/App.tsx';
+import EditorialIndex from '../src/editorial/Index.tsx';
 import GlobalNav from '../src/GlobalNav.tsx';
 import { articleRegistry, type ArticleConfig } from '../src/articles/registry.ts';
 import { buildArticleJsonLd } from '../src/articles/json-ld.ts';
@@ -62,7 +63,7 @@ function renderApp(lang: 'es' | 'en'): string {
       <div>
         <Suspense fallback={null}>
           <Routes>
-            <Route path="/" element={<App />} />
+            <Route path="/" element={<EditorialIndex />} />
             <Route path="/en" element={<App />} />
           </Routes>
         </Suspense>
