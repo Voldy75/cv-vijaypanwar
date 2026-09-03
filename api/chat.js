@@ -4,12 +4,28 @@ import {
   createUIMessageStreamResponse,
   toUIMessageStream,
 } from 'ai'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 
 export const config = { runtime: 'edge' }
 
-// Model served through the Vercel AI Gateway.
-// Auth: AI_GATEWAY_API_KEY, or automatic OIDC when deployed on Vercel.
-const MODEL = 'google/gemini-3.8-flash'
+/**
+ * Two ways to reach Gemini, whichever is provisioned:
+ *
+ *  1. GOOGLE_GENERATIVE_AI_API_KEY — direct to Google (aistudio.google.com).
+ *     Free tier, no card required. Takes precedence when present.
+ *  2. AI_GATEWAY_API_KEY — Vercel AI Gateway. Note the gateway refuses
+ *     requests until a card is on file, even on free credits
+ *     (403 customer_verification_required).
+ */
+const GOOGLE_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY
+
+function resolveModel() {
+  if (GOOGLE_KEY) {
+    const google = createGoogleGenerativeAI({ apiKey: GOOGLE_KEY })
+    return google('gemini-3.8-flash')
+  }
+  return 'google/gemini-3.8-flash'
+}
 
 const SYSTEM_PROMPT = `You are the AI assistant on Vijay Panwar's portfolio site. You answer questions from recruiters, hiring managers, and collaborators about Vijay's professional background.
 
@@ -60,7 +76,7 @@ export default async function handler(req) {
     }
 
     const result = streamText({
-      model: MODEL,
+      model: resolveModel(),
       instructions: SYSTEM_PROMPT,
       messages: await convertToModelMessages(messages.slice(-20)),
       maxOutputTokens: 800,

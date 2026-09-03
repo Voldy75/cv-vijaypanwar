@@ -26,6 +26,7 @@
     "diagnose:rag": "npx tsx scripts/diagnose-rag.ts"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.63",
     "@ai-sdk/react": "^4.0.94",
     "@anthropic-ai/sdk": "^0.71.2",
     "@supabase/supabase-js": "^2.99.1",
