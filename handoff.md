@@ -166,3 +166,58 @@ A fully re-branded personal portfolio site for **Vijay Panwar** (forked from San
 
 ## Open questions
 - Redesign reference is `https://www.surajgaud.com` (single-column, chronological, minimal sans-serif, light/neutral, emoji markers, tagged projects). Confirm 2a/3a align with that before building.
+
+---
+
+# SESSION 3 ADDENDUM — editorial redesign shipped
+
+## What changed
+Implemented Claude Design directions **2a** (homepage) and **3a** (playbook) from
+project `b99a5ab2-3a94-47b2-ac9d-6b6ac7e694ba` ("Redesigning personal CV site").
+
+- `src/editorial/Index.tsx` — new homepage at `/`. Narrow single column, lowercase
+  editorial voice. Sections: header + now-playing, today, i also (inline `<details>`
+  asides), past (4 roles w/ logos), personal projects (6 accordions, device-framed
+  previews), playbook callout, recent writing, links, "while you're here", ask-bar.
+- `src/editorial/Tetris.tsx` — the dark block. 10x18, 7 tetrominoes, wall-kick
+  rotation, speed scales with lines. Keyboard works only while the board has focus
+  so the page still scrolls.
+- `src/editorial/AskBar.tsx` — inline ask-bar on `useChat`, hits `/api/chat`.
+  ⌘K focuses it. Expands into the conversation in place.
+- `src/editorial/Playbook.tsx` — `/playbook`, chaptered index + request-access footer.
+- `src/index.css` — `.ed` scoped design tokens + self-hosted Libre Franklin and
+  JetBrains Mono (`public/fonts/`). Scoped so article/ops pages keep their theme.
+- `public/logos/` — Vijay's five real logos (npci, zrika, rapipay, burgon, icici)
+  pulled from the design project.
+
+## Dead ends — session 3
+- **`base64 -d` on macOS silently produces an empty file.** It is not a corruption
+  problem. Use `python3 -c "base64.b64decode(...)"`. Cost a debugging cycle.
+- **Do not re-emit binary base64 through model output to write a file.** A stray
+  space crept in. Large DesignSync `get_file` results persist to disk automatically —
+  decode from that JSON file instead. Small ones return inline; for those, prefer a
+  larger sibling asset (that is why `npci.png` is used rather than `npci-mark.png`).
+- **`scripts/prerender.tsx` has its OWN hardcoded route table** — it does not read
+  main.tsx. Changing the `/` route in main.tsx alone left the old design in
+  `dist/index.html`, which would flash before hydration. Any new/changed route needs
+  editing in BOTH places.
+- **Routing is per-route rewrites in `vercel.json` to prerendered `index.html` files.**
+  There is no SPA catch-all. A new route 404s in production unless you (1) prerender
+  it and (2) add its rewrite. `/playbook` and `/v1` both hit this; `/v1` was dropped.
+
+## Still open
+1. **`AI_GATEWAY_API_KEY` is still unset** — the ask-bar renders and degrades
+   gracefully, but every send returns `GatewayError: Unauthenticated`. This is the
+   one thing standing between the site and a working chatbot.
+   `vercel env add AI_GATEWAY_API_KEY production` then `vercel --prod --yes`.
+2. **Two placeholders are live, by the designer's own note:**
+   - Homepage "i also" ends with `[ hobbies — your words ]` — literal placeholder
+     text in the design. Needs Vijay's copy.
+   - Playbook chapter titles are placeholders ("send me the outline and I'll set
+     the copy" per the design doc). Currently the four from the mock.
+3. **Project screenshots are empty "screenshot" plates** except *create, shop & crave*,
+   which embeds a live iframe. Real screenshots would need capturing.
+4. **Design deviation:** the mock shows a "voice" indicator in the ask-bar. Omitted —
+   there is no voice backend, and a non-functional affordance would mislead.
+5. `/en` still prerenders the OLD `App` homepage. It is not in the SPA router, so it
+   is effectively an orphan. Decide whether to delete or repoint it.
