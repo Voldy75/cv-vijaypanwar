@@ -206,10 +206,16 @@ project `b99a5ab2-3a94-47b2-ac9d-6b6ac7e694ba` ("Redesigning personal CV site").
   it and (2) add its rewrite. `/playbook` and `/v1` both hit this; `/v1` was dropped.
 
 ## Still open
-1. **`AI_GATEWAY_API_KEY` is still unset** — the ask-bar renders and degrades
-   gracefully, but every send returns `GatewayError: Unauthenticated`. This is the
-   one thing standing between the site and a working chatbot.
-   `vercel env add AI_GATEWAY_API_KEY production` then `vercel --prod --yes`.
+1. **Chat is blocked on Vercel billing, NOT on the key.** `AI_GATEWAY_API_KEY` is
+   set and authenticates fine. The gateway then returns
+   `403 customer_verification_required`: *"AI Gateway requires a valid credit card
+   on file to service requests"* — it wants a card even to release free credits.
+   Two ways forward, and `api/chat.js` already supports both:
+   - Add a card at `vercel.com/[team]/~/ai` (unlocks the existing gateway key), **or**
+   - Get a free key at aistudio.google.com and
+     `vercel env add GOOGLE_GENERATIVE_AI_API_KEY production` — direct to Google,
+     no card. This one takes precedence when present.
+   Then `vercel --prod --yes`. Same model (`gemini-3.8-flash`) either way.
 2. **Two placeholders are live, by the designer's own note:**
    - Homepage "i also" ends with `[ hobbies — your words ]` — literal placeholder
      text in the design. Needs Vijay's copy.
@@ -217,7 +223,12 @@ project `b99a5ab2-3a94-47b2-ac9d-6b6ac7e694ba` ("Redesigning personal CV site").
      the copy" per the design doc). Currently the four from the mock.
 3. **Project screenshots are empty "screenshot" plates** except *create, shop & crave*,
    which embeds a live iframe. Real screenshots would need capturing.
-4. **Design deviation:** the mock shows a "voice" indicator in the ask-bar. Omitted —
-   there is no voice backend, and a non-functional affordance would mislead.
+4. **Voice is in and it is real.** The design's voice dot was added back on request
+   and wired to the Web Speech API (`src/editorial/useVoiceInput.ts`) — browser-native,
+   no backend or key. Interim results fill the field live; a final result sends the
+   question. The control hides itself where the API is missing, so no browser gets a
+   dead button. NOT verified end-to-end: the Browser pane blocks mic capture, so
+   rendering, state toggling and the pulse animation were confirmed but live
+   transcription was not. Worth one manual check in Chrome.
 5. `/en` still prerenders the OLD `App` homepage. It is not in the SPA router, so it
    is effectively an orphan. Decide whether to delete or repoint it.
