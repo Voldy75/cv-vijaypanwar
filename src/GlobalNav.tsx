@@ -192,7 +192,7 @@ export default function GlobalNav() {
                   className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors shrink-0"
                 >
                   <House className="w-4 h-4" />
-                  <span className="hidden sm:inline">vijaypanwar.io</span>
+                  <span className="hidden sm:inline">vijay panwar</span>
                 </Link>
                 {pageTitle && (
                   <>

@@ -1,6 +1,7 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import AskBar from './AskBar'
+import { usePaperChrome } from './usePaperChrome'
 
 const Tetris = lazy(() => import('./Tetris'))
 
@@ -65,7 +66,10 @@ type Project = {
   href?: string
   hrefLabel?: string
   note?: string
+  /** live embed shown in the device frame */
   iframe?: string
+  /** screenshot shown in the device frame, e.g. '/projects/local-rag.webp' */
+  image?: string
   open?: boolean
 }
 
@@ -88,15 +92,29 @@ const WRITING = [
 
 export default function EditorialIndex() {
   const [hydrated, setHydrated] = useState(false)
+  const [showTetris, setShowTetris] = useState(false)
+  const tetrisRef = useRef<HTMLDivElement>(null)
+  usePaperChrome()
 
   useEffect(() => {
     document.title = 'vijay panwar — payments, product, applied AI'
     setHydrated(true)
   }, [])
 
+  // Most visitors never scroll this far, so the game's code loads only as it nears the viewport.
+  useEffect(() => {
+    const el = tetrisRef.current
+    if (!el) return
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { setShowTetris(true); io.disconnect() }
+    }, { rootMargin: '400px 0px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
   return (
     <main className="ed">
-      <div className="mx-auto" style={{ maxWidth: 760, padding: '44px 52px 0' }}>
+      <div className="ed-col">
 
         {/* header */}
         <div className="flex items-baseline justify-between gap-5" style={{ marginBottom: 6 }}>
@@ -142,18 +160,18 @@ export default function EditorialIndex() {
           build{' '}
           <details name="aside" className="ed-aside">
             <summary>weekend agents</summary>
-            <span style={{ display: 'block', position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 5, padding: '12px 16px', background: 'var(--ed-panel)', borderLeft: '2px solid var(--ed-rust)', boxShadow: '0 4px 14px rgba(0,0,0,.08)', fontSize: 15, lineHeight: 1.6, color: 'var(--ed-body)' }}>
+            <span className="ed-aside-panel">
               a local RAG system that keeps sensitive documents on your own machine · a dashboard generator that turns any dataset into a one-pager · an AI food assistant that plans the recipe and orders the groceries
             </span>
           </details>
-          , keep rewriting an{' '}
+          {' '}and keep rewriting an{' '}
           <details name="aside" className="ed-aside">
             <summary>AI product playbook</summary>
-            <span style={{ display: 'block', position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 5, padding: '12px 16px', background: 'var(--ed-panel)', borderLeft: '2px solid var(--ed-rust)', boxShadow: '0 4px 14px rgba(0,0,0,.08)', fontSize: 15, lineHeight: 1.6, color: 'var(--ed-body)' }}>
+            <span className="ed-aside-panel">
               RAG pipeline patterns · responsible-AI guardrails and HITL · LLM observability and evals · multi-agent orchestration blueprints. available on request.
             </span>
           </details>
-          , and <span style={{ borderBottom: '1px dashed #c2b8a6', color: 'var(--ed-muted)' }}>[ hobbies — your words ]</span>.
+          .
         </div>
 
         {/* past */}
@@ -193,34 +211,37 @@ export default function EditorialIndex() {
                 <span className="ed-mono hidden sm:inline" style={{ fontSize: 11, color: 'var(--ed-muted)', border: '1px solid var(--ed-chip)', padding: '3px 7px' }}>{p.tags}</span>
                 <Chevron />
               </summary>
-              <div className="grid gap-[22px]" style={{ gridTemplateColumns: 'minmax(0,296px) 1fr', padding: '4px 0 20px' }}>
-                <div className="ed-device">
-                  <div className="ed-device-inner">
-                    <div className="ed-screen">
-                      {p.iframe ? (
-                        <iframe
-                          src={p.iframe}
-                          title={`${p.title} — live`}
-                          loading="lazy"
-                          style={{ position: 'absolute', top: 0, left: 0, width: 390, height: 293, transform: 'scale(.662)', transformOrigin: 'top left', border: 0, background: '#fff' }}
-                        />
-                      ) : (
-                        <div className="ed-mono" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--ed-muted)' }}>
-                          screenshot
-                        </div>
-                      )}
+              <div className={`ed-proj-body${p.iframe || p.image ? '' : ' no-preview'}`}>
+                {(p.iframe || p.image) && (
+                  <div className="ed-device">
+                    <div className="ed-device-inner">
+                      <div className="ed-screen">
+                        {p.iframe ? (
+                          // rendered at ~1.5x and scaled down, so it fills the frame at any width
+                          <iframe
+                            src={p.iframe}
+                            title={`${p.title} — live`}
+                            loading="lazy"
+                            style={{ position: 'absolute', top: 0, left: 0, width: `${100 / 0.662}%`, height: `${100 / 0.662}%`, transform: 'scale(.662)', transformOrigin: 'top left', border: 0, background: '#fff' }}
+                          />
+                        ) : (
+                          <img src={p.image} alt={`${p.title} — screenshot`} loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2" style={{ padding: '9px 3px 10px' }}>
+                      <PixelMark />
+                      <span className="ed-mono" style={{ flex: 1, fontSize: 9, letterSpacing: '.1em', textTransform: 'uppercase', color: '#8a7c66' }}>{p.iframe ? 'live preview' : 'screenshot'}</span>
+                      <span style={{ width: 74, height: 9, background: '#c2b39d', borderRadius: 2, boxShadow: 'inset 0 1px 2px rgba(0,0,0,.25)', position: 'relative' }}>
+                        <span style={{ position: 'absolute', right: 2, top: 2, width: 16, height: 5, background: '#e6dccb', borderRadius: 1 }} />
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2" style={{ padding: '9px 3px 10px' }}>
-                    <PixelMark />
-                    <span className="ed-mono" style={{ flex: 1, fontSize: 9, letterSpacing: '.1em', textTransform: 'uppercase', color: '#8a7c66' }}>live preview</span>
-                    <span style={{ width: 74, height: 9, background: '#c2b39d', borderRadius: 2, boxShadow: 'inset 0 1px 2px rgba(0,0,0,.25)', position: 'relative' }}>
-                      <span style={{ position: 'absolute', right: 2, top: 2, width: 16, height: 5, background: '#e6dccb', borderRadius: 1 }} />
-                    </span>
-                  </div>
-                </div>
+                )}
                 <div>
                   <p className="m-0" style={{ marginBottom: 14, fontSize: 15, lineHeight: 1.65, color: 'var(--ed-body)' }}>{p.blurb}</p>
+                  {/* the summary's tag chip is hidden on phones, so show the tags here instead */}
+                  <p className="ed-mono m-0 sm:hidden" style={{ marginBottom: 10, fontSize: 11, color: 'var(--ed-muted)' }}>{p.tags}</p>
                   {p.href
                     ? <a href={p.href} target="_blank" rel="noopener noreferrer" className="ed-mono ed-rustlink" style={{ fontSize: 12 }}>{p.hrefLabel}</a>
                     : <span className="ed-mono" style={{ fontSize: 11, color: 'var(--ed-muted)' }}>{p.note}</span>}
@@ -278,10 +299,15 @@ export default function EditorialIndex() {
           <div className="flex items-baseline justify-between gap-4" style={{ marginBottom: 18 }}>
             <p className="ed-mono m-0" style={{ fontSize: 12, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--ed-gold)' }}>while you&apos;re here</p>
             <p className="ed-mono m-0 hidden sm:block" style={{ fontSize: 11, color: '#8d8578' }}>arrow keys · space to drop</p>
+            <p className="ed-mono m-0 sm:hidden" style={{ fontSize: 11, color: '#8d8578' }}>tap the buttons to play</p>
           </div>
-          <Suspense fallback={<p className="ed-mono" style={{ fontSize: 11, color: '#6b6459' }}>loading…</p>}>
-            <Tetris />
-          </Suspense>
+          <div ref={tetrisRef} style={{ minHeight: 277 }}>
+            {showTetris && (
+              <Suspense fallback={<p className="ed-mono" style={{ fontSize: 11, color: '#6b6459' }}>loading…</p>}>
+                <Tetris />
+              </Suspense>
+            )}
+          </div>
         </div>
 
         {/* ask bar — client only; useChat must not run during prerender */}

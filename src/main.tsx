@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/react'
 import './index.css'
 import GlobalNav from './GlobalNav.tsx'
 import { articleRegistry } from './articles/registry'
+import { SITE_HOST } from './site'
 
 const EditorialIndex = lazy(() => import('./editorial/Index'))
 const Playbook = lazy(() => import('./editorial/Playbook'))
@@ -97,21 +98,16 @@ function ConditionalNav() {
 }
 
 // Console easter egg
-const ASCII_ART = `\n ███████╗ █████╗ ███╗   ██╗████████╗██╗███████╗███████╗██████╗ \n ██╔════╝██╔══██╗████╗  ██║╚══██╔══╝██║██╔════╝██╔════╝██╔══██╗\n ███████╗███████║██╔██╗ ██║   ██║   ██║█████╗  █████╗  ██████╔╝\n ╚════██║██╔══██║██║╚██╗██║   ██║   ██║██╔══╝  ██╔══╝  ██╔══██╗\n ███████║██║  ██║██║ ╚████║   ██║   ██║██║     ███████╗██║  ██║\n ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝\n`
-console.log(`%c${ASCII_ART}`, 'color: #f97316; font-size: 12px; font-family: monospace;')
-console.log('%c Most people scroll. You inspect. I like that. ', 'background: #f97316; color: #1a1a1a; font-size: 14px; font-weight: bold; padding: 4px 8px; border-radius: 3px;')
+console.log('%c Most people scroll. You inspect. I like that. ', 'background: #a8452c; color: #faf9f7; font-size: 14px; font-weight: bold; padding: 4px 8px; border-radius: 3px;')
 console.log('%cThe %cbest %cwork %cis %cinvisible.', 'color: #94a3b8; font-size: 13px;', 'color: #7e8d9d; font-size: 13px;', 'color: #687882; font-size: 13px;', 'color: #526268; font-size: 13px;', 'color: #3d4d52; font-size: 13px;')
 console.log('%cYou just found some of it.', 'color: #94a3b8; font-size: 13px;')
-console.log('%c I build the details. Let\'s solve something hard → vijaypanwar333@gmail.com ', 'background: #f97316; color: #1a1a1a; font-size: 13px; font-weight: bold; padding: 4px 8px; border-radius: 3px;')
+console.log('%c Payments, product, applied AI. Let\'s talk → vijaypanwar333@gmail.com ', 'background: #a8452c; color: #faf9f7; font-size: 13px; font-weight: bold; padding: 4px 8px; border-radius: 3px;')
 
-// Debug API for technical recruiters — type window.__santifer in console
-Object.defineProperty(window, '__santifer', {
+// Debug API for technical recruiters — type window.__vijay in console
+Object.defineProperty(window, '__vijay', {
   value: Object.freeze({
-    stack: 'React 19 + TypeScript + Vite + Tailwind v4 + Motion',
-    llm: 'claude-sonnet-4-5 (streaming SSE)',
-    security: '6-layer defense (keywords, canary, fingerprint, anti-extraction, online scoring, adversarial)',
-    evals: '71 automated (factual, persona, safety, RAG, multilingual, multi-turn, source badges, voice)',
-    observability: 'Langfuse (traces, LLM-as-Judge, intent tags)',
+    stack: 'React 19 + TypeScript + Vite + Tailwind v4',
+    llm: 'Gemini via the Vercel AI SDK (streaming)',
     render: 'Pre-rendered HTML + critical CSS inlined + client hydration',
     perf: () => { const n = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming; console.table({ TTFB: `${Math.round(n.responseStart - n.requestStart)}ms`, DOMContentLoaded: `${Math.round(n.domContentLoadedEventEnd - n.startTime)}ms`, Load: `${Math.round(n.loadEventEnd - n.startTime)}ms` }); },
     hire_me: 'vijaypanwar333@gmail.com',
@@ -124,7 +120,7 @@ function NotFound() {
     let robots = document.querySelector('meta[name="robots"]') as HTMLMetaElement
     if (!robots) { robots = document.createElement('meta'); robots.name = 'robots'; document.head.appendChild(robots) }
     robots.content = 'noindex, nofollow'
-    document.title = '404 — Page not found | vijaypanwar.io'
+    document.title = `404 — Page not found | ${SITE_HOST}`
     return () => { robots.content = 'index, follow' }
   }, [])
 

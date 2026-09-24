@@ -210,9 +210,9 @@ export default function Tetris() {
 
         <button
           onClick={start}
-          className={btn}
+          className={`${btn} w-[194px] sm:w-[150px]`}
           style={{
-            display: 'block', width: 150, margin: '0 0 10px', padding: '11px 0',
+            display: 'block', margin: '0 0 10px', padding: '11px 0',
             background: '#e8c341', border: 'none', borderBottom: '4px solid #9c8121',
             color: '#100f0c', fontSize: 12, letterSpacing: '.16em', textTransform: 'uppercase', cursor: 'pointer',
           }}
@@ -220,22 +220,24 @@ export default function Tetris() {
           {label}
         </button>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 36px)', gap: 6, width: 150 }}>
+        {/* On-screen controls: the only way to play on touch screens, so keep them thumb-sized (44px) */}
+        <div className="grid grid-cols-4 gap-[6px] w-[194px] sm:w-[150px]">
           {([
-            ['←', () => move(-1)],
-            ['⟳', turn],
-            ['→', () => move(1)],
-            ['↓', drop],
-          ] as [string, () => void][]).map(([glyph, fn]) => (
+            ['←', 'move left', () => move(-1)],
+            ['⟳', 'rotate', turn],
+            ['→', 'move right', () => move(1)],
+            ['↓', 'drop', drop],
+          ] as [string, string, () => void][]).map(([glyph, name, fn]) => (
             <button
               key={glyph}
               onClick={() => { if (running) fn() }}
-              aria-label={glyph}
-              className={btn}
+              aria-label={name}
               style={{
                 padding: '9px 0', background: '#24231d', border: 'none',
                 borderBottom: '3px solid #100f0c', color: '#faf9f7', fontSize: 13, cursor: 'pointer',
+                touchAction: 'manipulation',
               }}
+              className={`${btn} min-h-[44px] sm:min-h-0`}
             >
               {glyph}
             </button>

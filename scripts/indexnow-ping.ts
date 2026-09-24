@@ -10,6 +10,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { SITE_HOST } from '../src/site.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = resolve(__dirname, '..')
@@ -66,7 +67,7 @@ console.log(`[indexnow] Pinging ${urls.length} URLs...`)
 // POST to IndexNow API
 // ---------------------------------------------------------------------------
 
-const host = 'santifer.io'
+const host = SITE_HOST
 const keyLocation = `https://${host}/indexnow-key.txt`
 
 const body = {

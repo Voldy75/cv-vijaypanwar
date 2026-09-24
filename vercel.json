@@ -50,10 +50,6 @@
           "value": "Claude Code"
         },
         {
-          "key": "X-Evals",
-          "value": "71"
-        },
-        {
           "key": "X-Resume",
           "value": "/llms.txt"
         }

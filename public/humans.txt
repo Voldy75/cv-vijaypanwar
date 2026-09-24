@@ -1,24 +1,18 @@
 /* TEAM */
-Builder: Santiago Fernandez de Valderrama Aparicio
-Role: Head of Applied AI · AI Product Manager · Solutions Architect
-Contact: hi@santifer.io
-Site: https://santifer.io
-Location: Seville, Spain
-LinkedIn: https://linkedin.com/in/santifer
-GitHub: https://github.com/santifer
+Builder: Vijay Panwar
+Role: Senior Product Manager · Payments, Product, Applied AI
+Contact: vijaypanwar333@gmail.com
+Site: https://cv-vijaypanwar.vercel.app
+Location: Mumbai, India
+LinkedIn: https://linkedin.com/in/vijay-panwar-835bb13a
+GitHub: https://github.com/Voldy75
 
 /* THANKS */
 AI Pair: Claude Code (Anthropic)
+Original template: cv-santiago by Santiago Fernández de Valderrama (github.com/santifer/cv-santiago)
 
 /* SITE */
-Stack: React 19, TypeScript, Vite, Tailwind CSS, Motion
-AI: Claude API (claude-sonnet-4-6), streaming via Vercel Edge
-Quality: 71 evals, 6-layer security, Langfuse observability, closed-loop quality
+Stack: React 19, TypeScript, Vite, Tailwind CSS
+AI: Gemini via the Vercel AI SDK, streaming from a Vercel function
 Hosting: Vercel
 Standards: llms.txt, security.txt, JSON-LD, Open Graph
-
-/* CRAFT */
-Performance: Lighthouse 100, pre-rendered SSR, critical CSS inlining
-Security: CSP, input sanitization, prompt injection defense, rate limiting
-Accessibility: Semantic HTML, ARIA labels, keyboard navigation
-SEO: Programmatic meta tags, structured data, sitemap, hreflang

@@ -689,7 +689,11 @@ section[id], footer[id] {
 }
 
 /* Scoped so the existing article/ops pages keep their own theme. */
+/* Keep overscroll and the browser chrome on paper, even when the site theme is dark. */
+html:has(main.ed), html:has(main.ed) body { background: #faf9f7; color-scheme: light; }
+
 .ed {
+  --ed-gutter:     52px;
   --ed-paper:      #faf9f7;
   --ed-ink:        #111110;
   --ed-muted:      #6b6459;
@@ -761,10 +765,32 @@ section[id], footer[id] {
 }
 .ed-screen { aspect-ratio: 4/3; background: #1b1a16; border-radius: 6px; overflow: hidden; position: relative; }
 
-/* Full-bleed band inside the narrow column */
-.ed-bleed { margin-left: -52px; margin-right: -52px; padding-left: 52px; padding-right: 52px; }
+/* The narrow reading column. Its gutter and .ed-bleed's must stay equal. */
+.ed-col { max-width: 760px; margin: 0 auto; padding: 44px var(--ed-gutter) 0; }
 @media (max-width: 640px) {
-  .ed-bleed { margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; }
+  .ed { --ed-gutter: 20px; }
+  .ed-col { padding-top: 32px; }
+}
+
+/* Full-bleed band inside the narrow column */
+.ed-bleed {
+  margin-left: calc(-1 * var(--ed-gutter)); margin-right: calc(-1 * var(--ed-gutter));
+  padding-left: var(--ed-gutter); padding-right: var(--ed-gutter);
+}
+
+/* Inline aside panel (opened from .ed-aside) */
+.ed-aside-panel {
+  display: block; position: absolute; top: 100%; left: 0; right: 0; z-index: 5;
+  padding: 12px 16px; background: var(--ed-panel); border-left: 2px solid var(--ed-rust);
+  box-shadow: 0 4px 14px rgba(0,0,0,.08); font-size: 15px; line-height: 1.6; color: var(--ed-body);
+}
+
+/* Project body: preview beside the text, stacked on phones */
+.ed-proj-body { display: grid; gap: 22px; grid-template-columns: minmax(0, 296px) 1fr; padding: 4px 0 20px; }
+.ed-proj-body.no-preview { grid-template-columns: 1fr; }
+@media (max-width: 560px) {
+  .ed-proj-body { grid-template-columns: 1fr; gap: 16px; }
+  .ed-proj-body .ed-device { max-width: 320px; }
 }
 
 /* Ask-bar voice control */

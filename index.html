@@ -6,12 +6,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- LCP Image Preload (avatar = Largest Contentful Paint element) -->
-    <link rel="preload" href="/foto-avatar-sm.webp" as="image" type="image/webp" imagesrcset="/foto-avatar-sm.webp 192w, /foto-avatar.webp 384w" imagesizes="(max-width: 768px) 160px, 192px" fetchpriority="high" />
-
-    <!-- Font Preloads (self-hosted, eliminates Google Fonts CDN) -->
-    <link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Font Preloads (self-hosted). These are the editorial homepage's faces;
+         scripts/prerender.tsx swaps in the article faces for the older pages. -->
+    <link rel="preload" href="/fonts/libre-franklin-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
 
     <!-- Primary Meta Tags -->
     <title>Vijay Panwar | Senior Product Manager · AI/ML · Payments & Fintech</title>
@@ -19,14 +17,15 @@
     <meta name="description" content="Senior Product Manager with 8+ years scaling platforms to millions of users. Led UPI Lite at NPCI (350M+ users). Expert in AI/ML products, payment infrastructure, and 0-to-1 product development." />
     <meta name="author" content="Vijay Panwar" />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://vijaypanwar.dev/" />
+    <link rel="canonical" href="https://cv-vijaypanwar.vercel.app/" />
 
     <!-- Open Graph / Facebook / LinkedIn / WhatsApp -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://vijaypanwar.dev/" />
+    <meta property="og:url" content="https://cv-vijaypanwar.vercel.app/" />
     <meta property="og:title" content="Vijay Panwar | Senior Product Manager · AI/ML · Payments & Fintech" />
     <meta property="og:description" content="Senior Product Manager with 8+ years scaling platforms to millions of users. Led UPI Lite at NPCI (350M+ users). Expert in AI/ML products and payment infrastructure." />
-    <meta property="og:image" content="/og-image.webp" />
+    <meta property="og:image" content="https://cv-vijaypanwar.vercel.app/og-image.webp" />
+    <meta property="og:image:type" content="image/webp" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Vijay Panwar - Senior Product Manager · AI/ML · Payments & Fintech" />
@@ -37,12 +36,12 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Vijay Panwar | Senior Product Manager · AI/ML · Payments & Fintech" />
     <meta name="twitter:description" content="Senior Product Manager with 8+ years scaling platforms to millions of users. Led UPI Lite at NPCI (350M+ users)." />
-    <meta name="twitter:image" content="/og-image.webp" />
+    <meta name="twitter:image" content="https://cv-vijaypanwar.vercel.app/og-image.webp" />
     <meta name="twitter:image:alt" content="Vijay Panwar - Senior Product Manager · AI/ML · Payments & Fintech" />
 
     <!-- Theme & App -->
-    <meta name="theme-color" content="#0a0a0a" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#faf9f7" />
+    <meta name="color-scheme" content="light" />
     <meta name="msapplication-TileColor" content="#0a0a0a" />
 
     <!-- Favicons -->
@@ -63,10 +62,9 @@
           "mainEntity": {
             "@type": "Person",
             "name": "Vijay Panwar",
-            "url": "https://github.com/Voldy75",
-            "image": "/foto-avatar.webp",
+            "url": "https://cv-vijaypanwar.vercel.app/",
+            "image": "https://cv-vijaypanwar.vercel.app/foto-avatar.webp",
             "email": "vijaypanwar333@gmail.com",
-            "telephone": "8871553657",
             "jobTitle": ["Senior Product Manager", "AI/ML Product Leader", "Payments & Fintech Specialist"],
             "hasOccupation": [
               {
@@ -133,9 +131,10 @@
       ]
     }
     </script>
-    <!-- Theme detection before first paint (eliminates dark→light FOUC) -->
+    <!-- Theme detection before first paint (eliminates dark→light FOUC).
+         The editorial pages (/ and /playbook) are always light paper, whatever the site theme. -->
     <script>
-      (function(){var s=localStorage.getItem('theme');var d=s?s==='dark':window.matchMedia('(prefers-color-scheme:dark)').matches;var h=document.documentElement;h.classList.toggle('dark',d);h.classList.toggle('light',!d);var m=document.querySelector('meta[name="color-scheme"]');if(m)m.content=d?'dark':'light';var t=document.querySelector('meta[name="theme-color"]');if(t)t.content=d?'#0a0a0a':'#ffffff'})()
+      (function(){var s=localStorage.getItem('theme');var d=s?s==='dark':window.matchMedia('(prefers-color-scheme:dark)').matches;var h=document.documentElement;h.classList.toggle('dark',d);h.classList.toggle('light',!d);var m=document.querySelector('meta[name="color-scheme"]');if(m)m.content=d?'dark':'light';var t=document.querySelector('meta[name="theme-color"]');var ed=location.pathname==='/'||location.pathname==='/playbook';if(m&&ed)m.content='light';if(t)t.content=ed?'#faf9f7':d?'#0a0a0a':'#ffffff'})()
     </script>
   </head>
   <body>

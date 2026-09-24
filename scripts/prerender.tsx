@@ -29,6 +29,7 @@ import AboutPage from '../src/AboutPage.tsx';
 import { aboutContent } from '../src/about-i18n.ts';
 import PrivacyPolicy from '../src/PrivacyPolicy.tsx';
 import { seo } from '../src/i18n.ts';
+import { SITE_URL, SITE_HOST } from '../src/site.ts';
 import { n8nContent } from '../src/n8n-i18n.ts';
 import { jacoboContent } from '../src/jacobo-i18n.ts';
 import { businessOsContent } from '../src/business-os-i18n.ts';
@@ -88,6 +89,17 @@ function renderArticlePage(slug: string, ArticleComponent: ComponentType<{ lang:
   ));
 }
 
+/**
+ * index.html preloads the editorial homepage's fonts. The older pages (about, articles,
+ * privacy, /en, 404) render in Space Grotesk + DM Sans, so give them those preloads instead.
+ */
+const EDITORIAL_FONT_PRELOADS = /<link rel="preload" href="\/fonts\/libre-franklin-latin\.woff2"[^>]*\/>\s*<link rel="preload" href="\/fonts\/jetbrains-mono-latin\.woff2"[^>]*\/>/;
+const ARTICLE_FONT_PRELOADS = '<link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />\n    <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin />';
+function withArticleFonts(html: string): string {
+  if (!EDITORIAL_FONT_PRELOADS.test(html)) throw new Error('[prerender] editorial font preloads not found in index.html — update EDITORIAL_FONT_PRELOADS');
+  return html.replace(EDITORIAL_FONT_PRELOADS, ARTICLE_FONT_PRELOADS);
+}
+
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
@@ -144,13 +156,13 @@ let enPage = indexHtml
   .replace(/<title>[^<]*<\/title>/, `<title>${esc(enSeo.title)}</title>`)
   .replace(/<meta name="title" content="[^"]*" \/>/, `<meta name="title" content="${esc(enSeo.title)}" />`)
   .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${esc(enSeo.description)}" />`)
-  .replace(/<link rel="canonical" href="[^"]*" \/>/, '<link rel="canonical" href="https://santifer.io/en" />')
-  .replace(/<meta property="og:url" content="[^"]*" \/>/, '<meta property="og:url" content="https://santifer.io/en" />')
+  .replace(/<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${SITE_URL}/en" />`)
+  .replace(/<meta property="og:url" content="[^"]*" \/>/, `<meta property="og:url" content="${SITE_URL}/en" />`)
   .replace(/<meta property="og:title" content="[^"]*" \/>/, `<meta property="og:title" content="${esc(enSeo.title)}" />`)
   .replace(/<meta property="og:description" content="[^"]*" \/>/, `<meta property="og:description" content="${esc(enSeo.description)}" />`)
   .replace(/<meta property="og:locale" content="es_ES" \/>/, '<meta property="og:locale" content="en_US" />')
   .replace(/<meta property="og:locale:alternate" content="en_US" \/>/, '<meta property="og:locale:alternate" content="es_ES" />')
-  .replace(/<meta name="twitter:url" content="[^"]*" \/>/, '<meta name="twitter:url" content="https://santifer.io/en" />')
+  .replace(/<meta name="twitter:url" content="[^"]*" \/>/, `<meta name="twitter:url" content="${SITE_URL}/en" />`)
   .replace(/<meta name="twitter:title" content="[^"]*" \/>/, `<meta name="twitter:title" content="${esc(enSeo.title)}" />`)
   .replace(/<meta name="twitter:description" content="[^"]*" \/>/, `<meta name="twitter:description" content="${esc(enSeo.description)}" />`);
 
@@ -470,13 +482,13 @@ async function writePage(html: string, outputPath: string, label: string) {
 const privacyPages: { slug: string; html: string }[] = [];
 
 for (const [lang, slug, altSlug] of [['es', 'privacidad', 'privacy'], ['en', 'privacy', 'privacidad']] as const) {
-  const url = `https://santifer.io/${slug}`;
-  const altUrl = `https://santifer.io/${altSlug}`;
+  const url = `${SITE_URL}/${slug}`;
+  const altUrl = `${SITE_URL}/${altSlug}`;
   const altLang = lang === 'es' ? 'en' : 'es';
-  const title = lang === 'es' ? 'Política de Privacidad | santifer.io' : 'Privacy Policy | santifer.io';
+  const title = lang === 'es' ? `Política de Privacidad | ${SITE_HOST}` : `Privacy Policy | ${SITE_HOST}`;
   const description = lang === 'es'
-    ? 'Política de privacidad de santifer.io. Cómo se recopilan y utilizan los datos del chatbot y la web.'
-    : 'Privacy policy for santifer.io. How chatbot and website data is collected and used.';
+    ? `Política de privacidad de ${SITE_HOST}. Cómo se recopilan y utilizan los datos de la web.`
+    : `Privacy policy for ${SITE_HOST}. How website data is collected and used.`;
 
   let renderedHtml: string;
   try {
@@ -497,7 +509,7 @@ for (const [lang, slug, altSlug] of [['es', 'privacidad', 'privacy'], ['en', 'pr
     renderedHtml = '';
   }
 
-  const hreflangLinks = `<link rel="alternate" hreflang="${lang}" href="${url}" /><link rel="alternate" hreflang="${altLang}" href="${altUrl}" /><link rel="alternate" hreflang="x-default" href="https://santifer.io/privacidad" />`;
+  const hreflangLinks = `<link rel="alternate" hreflang="${lang}" href="${url}" /><link rel="alternate" hreflang="${altLang}" href="${altUrl}" /><link rel="alternate" hreflang="x-default" href="${SITE_URL}/privacidad" />`;
 
   let result = indexHtml
     .replace('<div id="root"></div>', `<div id="root">${renderedHtml}</div>`)
@@ -529,7 +541,7 @@ for (const [lang, slug, altSlug] of [['es', 'privacidad', 'privacy'], ['en', 'pr
 const playbookPages: { slug: string; html: string }[] = [];
 {
   const slug = 'playbook';
-  const url = 'https://vijaypanwar.io/playbook';
+  const url = `${SITE_URL}/playbook`;
   const title = 'The Playbook — notes on shipping AI products | Vijay Panwar';
   const description = 'A structured approach to building AI-powered products: RAG architecture, agentic systems, LLM observability, and responsible AI governance.';
 
@@ -573,21 +585,21 @@ const playbookPages: { slug: string; html: string }[] = [];
 async function inlineCriticalCSS() {
   // Home pages
   await writePage(injectedEs, indexPath, 'ES: dist/index.html updated');
-  await writePage(enPage, resolve(distDir, 'en', 'index.html'), 'EN: dist/en/index.html created');
+  await writePage(withArticleFonts(enPage), resolve(distDir, 'en', 'index.html'), 'EN: dist/en/index.html created');
 
   // About pages
   for (const { slug, html } of aboutPages) {
-    await writePage(html, resolve(distDir, slug, 'index.html'), `${slug}: dist/${slug}/index.html created`);
+    await writePage(withArticleFonts(html), resolve(distDir, slug, 'index.html'), `${slug}: dist/${slug}/index.html created`);
   }
 
   // Article pages
   for (const { slug, html } of articlePages) {
-    await writePage(html, resolve(distDir, slug, 'index.html'), `${slug}: dist/${slug}/index.html created`);
+    await writePage(withArticleFonts(html), resolve(distDir, slug, 'index.html'), `${slug}: dist/${slug}/index.html created`);
   }
 
   // Privacy pages
   for (const { slug, html } of privacyPages) {
-    await writePage(html, resolve(distDir, slug, 'index.html'), `${slug}: dist/${slug}/index.html created`);
+    await writePage(withArticleFonts(html), resolve(distDir, slug, 'index.html'), `${slug}: dist/${slug}/index.html created`);
   }
 
   // Playbook
@@ -601,10 +613,10 @@ await inlineCriticalCSS();
 // ---------------------------------------------------------------------------
 // 404 page — Vercel serves this with HTTP 404 status automatically
 // ---------------------------------------------------------------------------
-const notFoundHtml = indexHtml
+const notFoundHtml = withArticleFonts(indexHtml)
   .replace('<div id="root"></div>', `<div id="root"><div style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 1.5rem"><p style="font-size:6rem;font-weight:bold;color:var(--primary);margin-bottom:1rem;font-family:var(--font-display)">404</p><h1 style="font-size:1.5rem;font-weight:600;color:var(--foreground);margin-bottom:0.5rem">Page not found</h1><p style="color:var(--muted-foreground);margin-bottom:2rem;max-width:28rem">The page you're looking for doesn't exist or has been moved.</p><a href="/" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:0.75rem;background:var(--primary);color:var(--primary-foreground);font-weight:500;text-decoration:none">← Back to home</a></div></div>`)
   .replace(/<meta name="robots" content="[^"]*" \/>/, '<meta name="robots" content="noindex, nofollow" />')
-  .replace(/<title>[^<]*<\/title>/, '<title>404 — Page not found | santifer.io</title>');
+  .replace(/<title>[^<]*<\/title>/, `<title>404 — Page not found | ${SITE_HOST}</title>`);
 
 // Add noindex if no robots meta exists
 if (!notFoundHtml.includes('name="robots"')) {

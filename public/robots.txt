@@ -1,7 +1,7 @@
 # Most bots crawl. The best ones read llms.txt → /llms.txt
 #
-# Built by Santiago Fernández — hi@santifer.io
-# Stack: React 19 · Claude API · Vercel Edge · 71 evals · 6-layer defense · voice mode
+# Vijay Panwar — vijaypanwar333@gmail.com
+# Stack: React 19 · Vite · Vercel
 
 User-agent: *
 Allow: /
@@ -27,4 +27,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://santifer.io/sitemap.xml
+Sitemap: https://cv-vijaypanwar.vercel.app/sitemap.xml

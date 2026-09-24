@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BookMark } from './Index'
+import { usePaperChrome } from './usePaperChrome'
 
 const EMAIL = 'vijaypanwar333@gmail.com'
 const LINKEDIN = 'https://linkedin.com/in/vijay-panwar-835bb13a'
@@ -14,6 +15,7 @@ const CHAPTERS = [
 
 export default function Playbook() {
   const [email, setEmail] = useState('')
+  usePaperChrome()
 
   useEffect(() => {
     document.title = 'the playbook — vijay panwar'
@@ -28,7 +30,7 @@ export default function Playbook() {
 
   return (
     <main className="ed">
-      <div className="mx-auto" style={{ maxWidth: 760, padding: '44px 52px 0' }}>
+      <div className="ed-col">
 
         <div className="flex items-baseline justify-between gap-5" style={{ marginBottom: 40 }}>
           <Link to="/" className="ed-mono" style={{ fontSize: 12, color: 'var(--ed-muted)', textDecoration: 'none' }}>← vijay panwar</Link>

@@ -12,6 +12,7 @@ import { writeFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { articleRegistry } from '../src/articles/registry.ts'
+import { SITE_URL } from '../src/site.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const dist = resolve(__dirname, '..', 'dist')
@@ -46,7 +47,7 @@ function urlBlock(u: SitemapUrl): string {
 // Build URLs
 // ---------------------------------------------------------------------------
 
-const base = 'https://santifer.io'
+const base = SITE_URL
 const urls: SitemapUrl[] = []
 
 // Home ES + EN

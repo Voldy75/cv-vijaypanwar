@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArticleLayout } from './articles/components'
+import { SITE_HOST, SITE_URL } from './site'
 
 const content = {
   es: {
@@ -94,7 +95,7 @@ export default function PrivacyPolicy({ lang = 'es' }: { lang?: 'es' | 'en' }) {
   const t = content[lang]
 
   useEffect(() => {
-    document.title = `${t.title} | vijaypanwar.io`
+    document.title = `${t.title} | ${SITE_HOST}`
 
     // noindex
     let robots = document.querySelector('meta[name="robots"]') as HTMLMetaElement
@@ -107,7 +108,7 @@ export default function PrivacyPolicy({ lang = 'es' }: { lang?: 'es' | 'en' }) {
 
     // Fix canonical (SPA fallback serves homepage canonical — override it)
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
-    if (canonical) canonical.href = `https://vijaypanwar.io/${lang === 'es' ? 'privacidad' : 'privacy'}`
+    if (canonical) canonical.href = `${SITE_URL}/${lang === 'es' ? 'privacidad' : 'privacy'}`
 
     // Fix meta description
     let desc = document.querySelector('meta[name="description"]') as HTMLMetaElement
