@@ -1,42 +1,24 @@
 /**
- * Post-deploy console error checker.
+ * Console error checker: visits every page in src/site.ts → SITE_PAGES in headless
+ * Chromium and reports console errors (hydration mismatches show up here).
  *
- * Launches headless Chromium via Playwright, visits every URL from the sitemap,
- * captures console.error messages, and reports them.
+ * Needs Playwright, which is not a project dependency:
+ *   npm i -D playwright && npx playwright install chromium
  *
  * Usage:
- *   npx tsx scripts/check-console-errors.ts [base-url]
- *   Default base URL: http://localhost:5173
- *   Production: npx tsx scripts/check-console-errors.ts https://santifer.io
+ *   npx tsx --tsconfig tsconfig.app.json scripts/check-console-errors.ts [base-url]
+ *   Default base URL: http://localhost:4173 (npm run preview)
  *
  * Exit code 1 if any console errors found.
  */
 
 import { chromium } from 'playwright'
-import { readFileSync, existsSync } from 'node:fs'
-import { resolve, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { SITE_PAGES } from '../src/site.ts'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const root = resolve(__dirname, '..')
+const baseUrl = (process.argv[2] || 'http://localhost:4173').replace(/\/$/, '')
 
-const baseUrl = process.argv[2] || 'http://localhost:5173'
-
-// Extract URLs from sitemap
 function getUrls(): string[] {
-  const sitemapPath = resolve(root, 'dist', 'sitemap.xml')
-  if (!existsSync(sitemapPath)) {
-    console.error('dist/sitemap.xml not found. Run npm run build first.')
-    process.exit(1)
-  }
-  const sitemap = readFileSync(sitemapPath, 'utf-8')
-  const urls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(m => m[1])
-
-  // Add utility pages not in sitemap
-  urls.push('https://santifer.io/privacidad', 'https://santifer.io/privacy')
-
-  // Convert to use the base URL
-  return urls.map(url => url.replace('https://santifer.io', baseUrl))
+  return SITE_PAGES.map((p) => `${baseUrl}${p.path}`)
 }
 
 interface PageResult {

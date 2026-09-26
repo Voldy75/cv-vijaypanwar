@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArticleLayout } from './articles/components'
+import PageLayout from './PageLayout'
 import { SITE_HOST, SITE_URL } from './site'
 
 const content = {
@@ -122,7 +122,7 @@ export default function PrivacyPolicy({ lang = 'es' }: { lang?: 'es' | 'en' }) {
   }, [lang, t.title])
 
   return (
-    <ArticleLayout lang={lang}>
+    <PageLayout lang={lang}>
       <header className="mb-10">
         <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-2">
           {t.title}
@@ -180,6 +180,6 @@ export default function PrivacyPolicy({ lang = 'es' }: { lang?: 'es' | 'en' }) {
           </Link>
         </div>
       </article>
-    </ArticleLayout>
+    </PageLayout>
   )
 }

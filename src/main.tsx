@@ -1,25 +1,17 @@
-import { StrictMode, lazy, Suspense, useState, useEffect, useRef, type ComponentType, type ReactNode } from 'react'
+import { StrictMode, lazy, Suspense, useState, useEffect, useRef, type ReactNode } from 'react'
 import { hydrateRoot, createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, useLocation, Link } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import './index.css'
 import GlobalNav from './GlobalNav.tsx'
-import { articleRegistry } from './articles/registry'
 import { SITE_HOST } from './site'
 
 const EditorialIndex = lazy(() => import('./editorial/Index'))
 const Playbook = lazy(() => import('./editorial/Playbook'))
 const AskChat = lazy(() => import('./AskChat'))
 const MusicToggle = lazy(() => import('./MusicToggle'))
-const OpsDashboard = lazy(() => import('./ops/OpsDashboard'))
 const PrivacyPolicy = lazy(() => import('./PrivacyPolicy'))
 const AboutPage = lazy(() => import('./AboutPage'))
-
-// Lazy-load article components from registry
-const articleComponents: Record<string, React.LazyExoticComponent<ComponentType<{ lang: 'es' | 'en' }>>> = {}
-for (const article of articleRegistry) {
-  articleComponents[article.id] = lazy(article.component)
-}
 
 /** Reset scroll + fade-in on route change (no animation on initial load to match prerender) */
 function PageTransition({ children }: { children: ReactNode }) {
@@ -67,7 +59,7 @@ function GlobalChat() {
   const { pathname } = useLocation()
   const [hydrated, setHydrated] = useState(false)
   useEffect(() => setHydrated(true), [])
-  if (!hydrated || pathname.startsWith('/ops') || isBare(pathname)) return null
+  if (!hydrated || isBare(pathname)) return null
   return (
     <Suspense fallback={null}>
       <AskChat />
@@ -79,7 +71,7 @@ function GlobalMusic() {
   const { pathname } = useLocation()
   const [hydrated, setHydrated] = useState(false)
   useEffect(() => setHydrated(true), [])
-  if (!hydrated || pathname.startsWith('/ops') || isBare(pathname)) return null
+  if (!hydrated || isBare(pathname)) return null
   return (
     <Suspense fallback={null}>
       <MusicToggle />
@@ -93,7 +85,7 @@ const isBare = (p: string) => BARE_ROUTES.includes(p)
 
 function ConditionalNav() {
   const { pathname } = useLocation()
-  if (pathname.startsWith('/ops') || isBare(pathname)) return null
+  if (isBare(pathname)) return null
   return <GlobalNav />
 }
 
@@ -153,15 +145,8 @@ const app = (
           <Routes>
             <Route path="/" element={<EditorialIndex />} />
             <Route path="/playbook" element={<Playbook />} />
-            <Route path="/ops" element={<OpsDashboard />} />
             <Route path="/about" element={<AboutPage lang="en" />} />
             <Route path="/privacy" element={<PrivacyPolicy lang="en" />} />
-            {articleRegistry.map((article) => {
-              const ArticleComponent = articleComponents[article.id]
-              return (
-                <Route key={article.id} path={`/${article.slugs.en}`} element={<ArticleComponent lang="en" />} />
-              )
-            })}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

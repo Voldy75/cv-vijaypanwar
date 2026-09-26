@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { getEsSlugs } from './articles/registry';
 
 const STORAGE_KEY = 'ambient-music';
 const VOL_DEFAULT = 0.3;
@@ -246,10 +244,7 @@ export default function MusicToggle() {
   const chatOpenRef = useRef(false);
   const wasPlayingRef = useRef(false);
 
-  // Detect lang reactively from route
-  const { pathname } = useLocation();
-  const esSlugs = getEsSlugs();
-  const lang = esSlugs.has(pathname) ? 'es' : 'en';
+  const lang = 'en' as const;
 
   useEffect(() => {
     const audio = new Audio('/audio/ambient-loop.mp3');

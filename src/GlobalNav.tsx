@@ -1,14 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Sun, Moon, House, ChevronRight } from 'lucide-react'
-import { getPageTitles, getSectionLabels } from './articles/registry'
 
 /**
  * GlobalNav — unified navigation across all pages.
  *
  * The translucent bar is a "contextual message container" that appears
  * when there's something to communicate:
- * - Inner pages: permanent "← santifer.io" back link
+ * - Inner pages: permanent "← vijay panwar" back link
  * - Any page: temporary language suggestion when browser lang ≠ page lang
  *
  * Language suggestion is right-aligned, next to the lang pill, reinforcing
@@ -16,8 +15,13 @@ import { getPageTitles, getSectionLabels } from './articles/registry'
  * when there's no bar (home, no banner), controls float fixed at top-6 right-6.
  */
 
-const PAGE_TITLE = getPageTitles()
-const SECTION_LABELS = getSectionLabels()
+/** Breadcrumb title per page that shows this nav. */
+const PAGE_TITLE: Record<string, string> = {
+  '/about': 'About',
+  '/privacy': 'Privacy',
+}
+/** Optional breadcrumb labels for a page's h2[id] sections, keyed by pathname. */
+const SECTION_LABELS: Record<string, Record<string, string>> = {}
 /** Observes h2[id] elements and returns the currently visible section ID */
 function useActiveSection(pathname: string, enabled: boolean) {
   const [activeId, setActiveId] = useState<string | null>(null)
