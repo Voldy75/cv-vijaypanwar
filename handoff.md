@@ -232,3 +232,37 @@ project `b99a5ab2-3a94-47b2-ac9d-6b6ac7e694ba` ("Redesigning personal CV site").
    transcription was not. Worth one manual check in Chrome.
 5. `/en` still prerenders the OLD `App` homepage. It is not in the SPA router, so it
    is effectively an orphan. Decide whether to delete or repoint it.
+
+---
+
+# SESSION 4 ADDENDUM — cleanup, content file, dark mode (supersedes anything above that conflicts)
+
+The site is now four pages: `/`, `/playbook`, `/about`, `/privacy`. Santiago's case studies,
+`/ops`, `/en`, the old chat/voice/RAG stack, evals and their workflows are deleted, so most of
+"Files in Play", "Next Steps" and the dead-code lists above no longer apply.
+
+## Where things live now
+- `src/content.json` — CV facts (roles, projects, writing, contact). Rendered by the homepage
+  (via typed `src/content.ts`) and turned into the chat's system prompt by `api/chat.js`.
+- `src/site.ts` — `SITE_URL` + `SITE_PAGES`. Prerender, sitemap and `validate-prerender` read it.
+  A new route = `SITE_PAGES` entry + `<Route>` in main.tsx + rewrite in vercel.json; the build
+  fails if one is missing.
+- `.ed` block in `src/index.css` — editorial tokens and classes. Dark mode redefines the
+  `--ed-*` tokens under `html.dark .ed` and follows the site theme / system setting.
+
+## Dead ends — session 4
+- **`vite preview` ignores vercel.json rewrites.** `/playbook`, `/about`, `/privacy` get the
+  homepage HTML, so React reports hydration error #418. It is not a real bug; it does not
+  happen on Vercel. To test locally, serve `dist/` with the rewrites applied.
+- **The prerender reads and overwrites `dist/index.html`.** Running it twice without
+  `vite build` used to produce wrong pages; it now exits with an error instead.
+- **`public/logos/burgon.png` was corrupt** (zlib error; likely the base64 issue from session 3).
+  Removed; the homepage shows a "B" badge until a fresh export is dropped in and
+  `"logo": "/logos/burgon.png"` is restored in content.json.
+
+## Open
+- Confirm role dates. Homepage said ICICI 2015–2022; About said ICICI 2015–2018 + Burgon
+  2019–2022. content.json now uses the About dates everywhere.
+- "recent writing" links go to the LinkedIn posts feed. Add each post's URL as `href` in
+  content.json to link the posts directly.
+- `src/about-i18n.ts` still keeps its own copy of the timeline/projects for /about.

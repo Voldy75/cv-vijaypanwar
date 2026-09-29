@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
-import { DefaultChatTransport } from 'ai'
+import { DefaultChatTransport, type UIMessage } from 'ai'
+import Markdown, { type Components } from 'react-markdown'
 import { useVoiceInput } from './useVoiceInput'
+import { content } from '../content'
 
 const SUGGESTIONS = [
   'how did you scale UPI Lite?',
@@ -9,8 +11,37 @@ const SUGGESTIONS = [
   'why should i hire you?',
 ]
 
-function textOf(m: { parts?: Array<{ type: string; text?: string }> }) {
-  return (m.parts ?? []).filter((p) => p.type === 'text').map((p) => p.text ?? '').join('')
+/* The conversation survives a refresh or a trip to /playbook and back, but not a closed tab. */
+const STORE_KEY = 'ed-askbar-messages'
+function loadMessages(): UIMessage[] {
+  try {
+    const raw = sessionStorage.getItem(STORE_KEY)
+    const parsed: unknown = raw ? JSON.parse(raw) : []
+    // keep only well-formed messages, so a stale or hand-edited entry can't break the chat
+    return Array.isArray(parsed)
+      ? parsed.filter((m): m is UIMessage => typeof m?.id === 'string' && (m.role === 'user' || m.role === 'assistant') && Array.isArray(m.parts))
+      : []
+  } catch {
+    return []
+  }
+}
+function saveMessages(messages: UIMessage[]) {
+  try {
+    if (messages.length) sessionStorage.setItem(STORE_KEY, JSON.stringify(messages))
+    else sessionStorage.removeItem(STORE_KEY)
+  } catch { /* private mode / storage full: the chat still works, it just won't be restored */ }
+}
+
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
+
+// Replies are markdown. Links open in a new tab; everything else renders as plain elements.
+const markdownComponents: Components = {
+  a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>,
+}
+const ALLOWED = ['p', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'code', 'br']
+
+function textOf(m: UIMessage) {
+  return m.parts.filter((p) => p.type === 'text').map((p) => p.text).join('')
 }
 
 export default function AskBar() {
@@ -18,10 +49,16 @@ export default function AskBar() {
   const inputRef = useRef<HTMLInputElement>(null)
   const logRef = useRef<HTMLDivElement>(null)
 
-  const { messages, sendMessage, status, error } = useChat({
+  const { messages, sendMessage, status, error, stop, regenerate, setMessages } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
+    messages: loadMessages(),
   })
   const busy = status === 'submitted' || status === 'streaming'
+
+  // Save once a reply has finished, not on every streamed token.
+  useEffect(() => {
+    if (!busy) saveMessages(messages)
+  }, [messages, busy])
 
   // Voice → fills the field live; a final result sends it.
   const voice = useVoiceInput((text, final) => {
@@ -55,103 +92,86 @@ export default function AskBar() {
     setInput('')
   }
 
-  return (
-    <div className="ed-bleed" style={{ background: 'var(--ed-panel)', borderTop: '1px solid var(--ed-rule)', paddingTop: 20, paddingBottom: 26 }}>
-      {messages.length > 0 && (
-        <div
-          ref={logRef}
-          className="mb-3 overflow-y-auto"
-          style={{ maxHeight: 300 }}
-        >
-          {messages.map((m) => {
-            const t = textOf(m)
-            if (!t) return null
-            const mine = m.role === 'user'
-            return (
-              <p
-                key={m.id}
-                className="m-0 mb-2"
-                style={{
-                  fontSize: 15,
-                  lineHeight: 1.6,
-                  color: mine ? 'var(--ed-ink)' : 'var(--ed-body)',
-                  paddingLeft: mine ? 0 : 14,
-                  borderLeft: mine ? 'none' : '2px solid var(--ed-rust)',
-                  fontWeight: mine ? 500 : 400,
-                  whiteSpace: 'pre-wrap',
-                }}
-              >
-                {mine ? <span className="ed-mono" style={{ fontSize: 11, color: 'var(--ed-muted)' }}>you · </span> : null}
-                {t}
-              </p>
-            )
-          })}
-          {status === 'submitted' && (
-            <p className="ed-mono m-0" style={{ fontSize: 12, color: 'var(--ed-muted)' }}>thinking…</p>
-          )}
-          {error && (
-            <p className="m-0" style={{ fontSize: 14, color: 'var(--ed-rust)' }}>
-              couldn't reach the model. email me at{' '}
-              <a href="mailto:vijaypanwar333@gmail.com" className="ed-rustlink">vijaypanwar333@gmail.com</a>.
-            </p>
-          )}
-        </div>
-      )}
+  const clear = () => {
+    stop()
+    setMessages([])
+    inputRef.current?.focus()
+  }
 
-      {messages.length === 0 && (
+  return (
+    <div className="ed-bleed ed-panel-band" style={{ paddingTop: 20, paddingBottom: 26 }}>
+      {/* role="log" + aria-live: screen readers announce replies as they arrive, without re-reading the whole log */}
+      <div
+        ref={logRef}
+        role="log"
+        aria-live="polite"
+        aria-label="Conversation"
+        className="overflow-y-auto"
+        style={{ maxHeight: 320, marginBottom: messages.length || error ? 12 : 0 }}
+      >
+        {messages.map((m) => {
+          const t = textOf(m)
+          if (!t) return null
+          return m.role === 'user' ? (
+            <p key={m.id} className="ed-msg ed-msg-me">
+              <span className="ed-meta">you · </span>{t}
+            </p>
+          ) : (
+            <div key={m.id} className="ed-msg ed-msg-bot">
+              <Markdown allowedElements={ALLOWED} unwrapDisallowed components={markdownComponents}>{t}</Markdown>
+            </div>
+          )
+        })}
+        {status === 'submitted' && <p className="ed-meta" style={{ fontSize: 12 }}>thinking…</p>}
+        {error && (
+          <p className="ed-error" role="alert">
+            couldn&apos;t reach the model.{' '}
+            <button type="button" className="ed-textbtn" style={{ fontSize: 12 }} onClick={() => regenerate()}>try again</button>
+            {' '}or email me at{' '}
+            <a href={`mailto:${content.email}`} className="ed-rustlink">{content.email}</a>.
+          </p>
+        )}
+      </div>
+
+      {messages.length === 0 ? (
         <div className="flex gap-2 flex-wrap mb-3">
           {SUGGESTIONS.map((s) => (
-            <button
-              key={s}
-              onClick={() => submit(s)}
-              style={{
-                padding: '5px 11px', background: 'var(--ed-paper)', border: '1px solid var(--ed-chip)',
-                borderRadius: 9999, fontSize: 13, color: 'var(--ed-body)', cursor: 'pointer',
-              }}
-            >
-              {s}
-            </button>
+            <button key={s} type="button" className="ed-chipbtn" onClick={() => submit(s)}>{s}</button>
           ))}
+        </div>
+      ) : !busy && (
+        <div className="flex justify-end mb-2">
+          <button type="button" className="ed-textbtn" style={{ color: 'var(--ed-muted)' }} onClick={clear}>clear conversation</button>
         </div>
       )}
 
-      <form
-        onSubmit={(e) => { e.preventDefault(); submit(input) }}
-        className="flex items-center gap-[10px]"
-        style={{ padding: '11px 14px', background: 'var(--ed-paper)', border: '1px solid var(--ed-field)' }}
-      >
+      <form onSubmit={(e) => { e.preventDefault(); submit(input) }} className="ed-field">
         <input
           ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="ask me anything…"
           aria-label="Ask about Vijay"
-          className="ed-mono flex-1 min-w-0 bg-transparent outline-none"
-          style={{ fontSize: 14, color: 'var(--ed-ink)' }}
         />
         {voice.supported && (
           <button
             type="button"
             onClick={voice.toggle}
-            className="ed-mono ed-voice inline-flex items-center gap-[6px]"
+            className="ed-textbtn ed-voice"
             data-listening={voice.listening}
             aria-pressed={voice.listening}
             aria-label={voice.listening ? 'Stop listening' : 'Ask by voice'}
             title={voice.denied ? 'Microphone permission blocked' : voice.listening ? 'listening — click to stop' : 'ask by voice'}
-            style={{ fontSize: 11, color: 'var(--ed-rust)', background: 'none', border: 'none', cursor: 'pointer', flex: 'none', opacity: voice.denied ? 0.5 : 1 }}
+            style={{ opacity: voice.denied ? 0.5 : 1 }}
           >
             <span className="ed-voice-dot" />
             {voice.listening ? 'listening' : 'voice'}
           </button>
         )}
-        {busy ? (
-          <span className="ed-mono" style={{ fontSize: 11, color: 'var(--ed-muted)' }}>…</span>
-        ) : (
-          <button type="submit" className="ed-mono" style={{ fontSize: 11, color: 'var(--ed-rust)', background: 'none', border: 'none', cursor: 'pointer' }}>
-            ask →
-          </button>
-        )}
-        <span className="ed-mono hidden sm:inline" style={{ fontSize: 11, color: 'var(--ed-muted)', border: '1px solid var(--ed-field)', borderRadius: 3, padding: '2px 6px' }}>⌘K</span>
+        {busy
+          ? <button type="button" className="ed-textbtn" onClick={() => stop()} aria-label="Stop the answer">stop ■</button>
+          : <button type="submit" className="ed-textbtn">ask →</button>}
+        <span className="ed-kbd hidden sm:inline" aria-hidden="true">{isMac ? '⌘K' : 'Ctrl K'}</span>
       </form>
     </div>
   )

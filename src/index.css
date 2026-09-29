@@ -688,25 +688,49 @@ section[id], footer[id] {
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* Scoped so the existing article/ops pages keep their own theme. */
-/* Keep overscroll and the browser chrome on paper, even when the site theme is dark. */
+/* ==========================================================================
+   Editorial pages (/ and /playbook). Everything is scoped under .ed so the
+   about/privacy pages keep the site theme. Colours are tokens only: dark mode
+   redefines them and nothing else. Dark follows the site theme (html.dark),
+   which the first-paint script in index.html sets from the saved choice or
+   the system setting.
+   ========================================================================== */
+
+/* Overscroll and the area outside the column match the paper, in both themes. */
 html:has(main.ed), html:has(main.ed) body { background: #faf9f7; color-scheme: light; }
+html.dark:has(main.ed), html.dark:has(main.ed) body { background: #141311; color-scheme: dark; }
 
 .ed {
-  --ed-gutter:     52px;
-  --ed-paper:      #faf9f7;
-  --ed-ink:        #111110;
-  --ed-muted:      #6b6459;
-  --ed-body:       #4a453c;
-  --ed-rust:       #a8452c;
-  --ed-rule:       #e8e3d9;
-  --ed-panel:      #f2efe9;
-  --ed-field:      #d6d1c8;
-  --ed-chip:       #e0dbd1;
-  --ed-dark:       #100f0c;
-  --ed-gold:       #e8c341;
-  --ed-cyan:       #5bc8d6;
-  --ed-amber:      #e8895c;
+  --ed-gutter:        52px;
+
+  --ed-paper:         #faf9f7;
+  --ed-ink:           #111110;
+  --ed-muted:         #6b6459;
+  --ed-body:          #4a453c;
+  --ed-rust:          #a8452c;
+  --ed-rust-soft:     rgba(168, 69, 44, .35);
+  --ed-rule:          #e8e3d9;
+  --ed-panel:         #f2efe9;
+  --ed-field:         #d6d1c8;
+  --ed-chip:          #e0dbd1;
+  --ed-dashed:        #c2b8a6;
+  --ed-shadow:        rgba(0, 0, 0, .08);
+  --ed-on-rust:       #faf9f7;
+
+  /* the dark "while you're here" band stays dark in both themes */
+  --ed-dark:          #100f0c;
+  --ed-dark-muted:    #8d8578;
+  --ed-gold:          #e8c341;
+  --ed-cyan:          #5bc8d6;
+  --ed-amber:         #e8895c;
+
+  /* the beige handheld frame around project previews */
+  --ed-device:        #ded2c0;
+  --ed-device-inner:  #cdbfa9;
+  --ed-device-hi:     #f0e7da;
+  --ed-device-lo:     #c2b39d;
+  --ed-device-label:  #8a7c66;
+  --ed-device-slot:   #e6dccb;
 
   background: var(--ed-paper);
   color: var(--ed-ink);
@@ -715,55 +739,33 @@ html:has(main.ed), html:has(main.ed) body { background: #faf9f7; color-scheme: l
   line-height: 1.7;
   min-height: 100vh;
 }
-.ed-mono { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; }
 
-/* Section eyebrow — mono, tracked, muted */
-.ed-eyebrow {
-  font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
-  font-size: 12px;
-  letter-spacing: .1em;
-  color: var(--ed-muted);
-  margin: 0 0 10px;
+html.dark .ed {
+  --ed-paper:         #141311;
+  --ed-ink:           #ece8e1;
+  --ed-muted:         #9b9387;
+  --ed-body:          #c9c3b8;
+  --ed-rust:          #e07a5a;
+  --ed-rust-soft:     rgba(224, 122, 90, .4);
+  --ed-rule:          #2a2824;
+  --ed-panel:         #1c1b18;
+  --ed-field:         #3a3731;
+  --ed-chip:          #34312c;
+  --ed-dashed:        #5a554c;
+  --ed-shadow:        rgba(0, 0, 0, .45);
+  --ed-on-rust:       #141311;
+
+  --ed-dark:          #0a0908;
+
+  --ed-device:        #3a352d;
+  --ed-device-inner:  #2e2a24;
+  --ed-device-hi:     #4a443a;
+  --ed-device-lo:     #25221d;
+  --ed-device-label:  #9b8f7b;
+  --ed-device-slot:   #4a443a;
 }
 
-/* Inline link that reads as text with a rule under it */
-.ed-link { color: var(--ed-ink); text-decoration: none; border-bottom: 1px solid var(--ed-ink); }
-.ed-link:hover { color: var(--ed-rust); border-bottom-color: var(--ed-rust); }
-.ed-rustlink { color: var(--ed-rust); text-decoration: none; border-bottom: 1px solid rgba(168,69,44,.35); }
-.ed-rustlink:hover { border-bottom-color: var(--ed-rust); }
-
-/* Expandable inline aside (details/summary) */
-.ed-aside { display: inline-block; }
-.ed-aside > summary {
-  display: inline;
-  cursor: pointer;
-  list-style: none;
-  border-bottom: 1px dashed var(--ed-rust);
-  color: var(--ed-rust);
-}
-.ed-aside > summary::-webkit-details-marker { display: none; }
-
-/* Project accordion */
-.ed-proj { border-top: 1px solid var(--ed-rule); }
-.ed-proj > summary { display: flex; align-items: center; gap: 12px; cursor: pointer; list-style: none; padding: 11px 0; }
-.ed-proj > summary::-webkit-details-marker { display: none; }
-.ed-proj > summary .ed-chev { transition: transform .18s ease; }
-.ed-proj[open] > summary .ed-chev { transform: rotate(180deg); }
-
-/* Device frame around project screenshots */
-.ed-device {
-  background: #ded2c0;
-  border-radius: 14px;
-  padding: 10px 10px 0;
-  box-shadow: inset 0 1px 0 #f0e7da, inset 0 -2px 0 #c2b39d, 0 1px 2px rgba(0,0,0,.12);
-}
-.ed-device-inner {
-  background: #cdbfa9;
-  border-radius: 9px;
-  padding: 9px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,.22);
-}
-.ed-screen { aspect-ratio: 4/3; background: #1b1a16; border-radius: 6px; overflow: hidden; position: relative; }
+/* ---- layout -------------------------------------------------------------- */
 
 /* The narrow reading column. Its gutter and .ed-bleed's must stay equal. */
 .ed-col { max-width: 760px; margin: 0 auto; padding: 44px var(--ed-gutter) 0; }
@@ -778,14 +780,88 @@ html:has(main.ed), html:has(main.ed) body { background: #faf9f7; color-scheme: l
   padding-left: var(--ed-gutter); padding-right: var(--ed-gutter);
 }
 
-/* Inline aside panel (opened from .ed-aside) */
+.ed-section { margin: 0 0 34px; }
+
+/* ---- type ---------------------------------------------------------------- */
+
+.ed-mono { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; }
+
+/* Section eyebrow — mono, tracked, muted */
+.ed-eyebrow {
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: .1em;
+  color: var(--ed-muted);
+  margin: 0 0 10px;
+}
+/* Uppercase mono line under a title */
+.ed-kicker {
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+}
+.ed-prose { font-size: 17px; line-height: 1.65; }
+.ed-lede  { font-size: 15px; color: var(--ed-muted); }
+.ed-small { font-size: 14px; color: var(--ed-muted); }
+.ed-meta  { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 11px; color: var(--ed-muted); }
+/* A fact worth underlining, without being a link */
+.ed-mark  { border-bottom: 1px solid var(--ed-field); }
+
+/* ---- links --------------------------------------------------------------- */
+
+/* Inline link that reads as text with a rule under it */
+.ed-link { color: var(--ed-ink); text-decoration: none; border-bottom: 1px solid var(--ed-ink); }
+.ed-link:hover { color: var(--ed-rust); border-bottom-color: var(--ed-rust); }
+.ed-rustlink { color: var(--ed-rust); text-decoration: none; border-bottom: 1px solid var(--ed-rust-soft); }
+.ed-rustlink:hover { border-bottom-color: var(--ed-rust); }
+/* Row link: plain ink, rust on hover */
+.ed-plainlink { color: var(--ed-ink); text-decoration: none; }
+.ed-plainlink:hover { color: var(--ed-rust); }
+.ed-mutedlink { color: var(--ed-muted); }
+
+/* ---- lists and rows ------------------------------------------------------ */
+
+/* Rows separated by rules, with a closing rule under the last */
+.ed-rows > * { border-top: 1px solid var(--ed-rule); }
+.ed-rows > *:last-child { border-bottom: 1px solid var(--ed-rule); }
+
+.ed-role { display: flex; gap: 12px; align-items: baseline; padding: 9px 0; }
+.ed-logo { display: inline-flex; align-items: center; width: 46px; height: 16px; flex: none; }
+.ed-logo img { max-width: 100%; max-height: 100%; object-fit: contain; object-position: left center; }
+/* The logos have white backgrounds; in dark mode give them a white chip rather than a white patch */
+html.dark .ed-logo img, html.dark .ed-inline-logo { background: #fff; border-radius: 2px; padding: 1px 2px; }
+.ed-logo-badge {
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 10px; line-height: 14px;
+  padding: 0 4px; border: 1px solid var(--ed-field); border-radius: 2px; color: var(--ed-muted); text-transform: uppercase;
+}
+.ed-inline-logo { display: inline-block; width: 17px; height: 17px; border-radius: 3px; vertical-align: -3px; margin-right: 5px; }
+
+.ed-tag { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 11px; color: var(--ed-muted); border: 1px solid var(--ed-chip); padding: 3px 7px; }
+
+/* ---- expandable inline aside (details/summary) --------------------------- */
+
+.ed-aside { display: inline-block; }
+.ed-aside > summary {
+  display: inline;
+  cursor: pointer;
+  list-style: none;
+  border-bottom: 1px dashed var(--ed-rust);
+  color: var(--ed-rust);
+}
+.ed-aside > summary::-webkit-details-marker { display: none; }
 .ed-aside-panel {
   display: block; position: absolute; top: 100%; left: 0; right: 0; z-index: 5;
   padding: 12px 16px; background: var(--ed-panel); border-left: 2px solid var(--ed-rust);
-  box-shadow: 0 4px 14px rgba(0,0,0,.08); font-size: 15px; line-height: 1.6; color: var(--ed-body);
+  box-shadow: 0 4px 14px var(--ed-shadow); font-size: 15px; line-height: 1.6; color: var(--ed-body);
 }
 
-/* Project body: preview beside the text, stacked on phones */
+/* ---- project accordion --------------------------------------------------- */
+
+.ed-proj > summary { display: flex; align-items: center; gap: 12px; cursor: pointer; list-style: none; padding: 11px 0; }
+.ed-proj > summary::-webkit-details-marker { display: none; }
+.ed-proj > summary .ed-chev { transition: transform .18s ease; }
+.ed-proj[open] > summary .ed-chev { transform: rotate(180deg); }
+
+/* Preview beside the text, stacked on phones */
 .ed-proj-body { display: grid; gap: 22px; grid-template-columns: minmax(0, 296px) 1fr; padding: 4px 0 20px; }
 .ed-proj-body.no-preview { grid-template-columns: 1fr; }
 @media (max-width: 560px) {
@@ -793,11 +869,72 @@ html:has(main.ed), html:has(main.ed) body { background: #faf9f7; color-scheme: l
   .ed-proj-body .ed-device { max-width: 320px; }
 }
 
-/* Ask-bar voice control */
+/* Device frame around project previews */
+.ed-device {
+  background: var(--ed-device);
+  border-radius: 14px;
+  padding: 10px 10px 0;
+  box-shadow: inset 0 1px 0 var(--ed-device-hi), inset 0 -2px 0 var(--ed-device-lo), 0 1px 2px rgba(0,0,0,.12);
+}
+.ed-device-inner {
+  background: var(--ed-device-inner);
+  border-radius: 9px;
+  padding: 9px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.22);
+}
+.ed-screen { aspect-ratio: 4/3; background: #1b1a16; border-radius: 6px; overflow: hidden; position: relative; }
+/* Rendered at ~1.5x and scaled down, so a live embed fills the screen at any width */
+.ed-screen iframe { position: absolute; top: 0; left: 0; width: 151.06%; height: 151.06%; transform: scale(.662); transform-origin: top left; border: 0; background: #fff; }
+.ed-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.ed-device-bar { display: flex; align-items: center; gap: 8px; padding: 9px 3px 10px; }
+.ed-device-label { flex: 1; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--ed-device-label); }
+.ed-device-slot { width: 74px; height: 9px; background: var(--ed-device-lo); border-radius: 2px; box-shadow: inset 0 1px 2px rgba(0,0,0,.25); position: relative; }
+.ed-device-slot::after { content: ''; position: absolute; right: 2px; top: 2px; width: 16px; height: 5px; background: var(--ed-device-slot); border-radius: 1px; }
+
+/* ---- callouts ------------------------------------------------------------ */
+
+.ed-callout { display: flex; gap: 14px; align-items: center; padding: 14px 16px; background: var(--ed-panel); }
+.ed-new { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 10px; background: var(--ed-rust); color: var(--ed-on-rust); padding: 2px 5px; vertical-align: 2px; }
+
+/* ---- form controls (ask-bar, playbook request) --------------------------- */
+
+.ed-panel-band { background: var(--ed-panel); border-top: 1px solid var(--ed-rule); }
+.ed-field { display: flex; align-items: center; gap: 10px; padding: 11px 14px; background: var(--ed-paper); border: 1px solid var(--ed-field); }
+.ed-field:focus-within { border-color: var(--ed-muted); }
+.ed-field input { flex: 1; min-width: 0; background: transparent; outline: none; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 14px; color: var(--ed-ink); }
+.ed-field input::placeholder { color: var(--ed-muted); }
+.ed-textbtn { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 11px; color: var(--ed-rust); background: none; border: none; cursor: pointer; flex: none; padding: 0; }
+.ed-textbtn:disabled { color: var(--ed-muted); cursor: default; }
+.ed-kbd { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 11px; color: var(--ed-muted); border: 1px solid var(--ed-field); border-radius: 3px; padding: 2px 6px; flex: none; }
+.ed-chipbtn { padding: 5px 11px; background: var(--ed-paper); border: 1px solid var(--ed-chip); border-radius: 9999px; font-size: 13px; color: var(--ed-body); cursor: pointer; }
+.ed-chipbtn:hover { border-color: var(--ed-field); color: var(--ed-ink); }
+.ed-error { font-size: 14px; color: var(--ed-rust); }
+
+/* ---- chat log ------------------------------------------------------------ */
+
+.ed-msg { font-size: 15px; line-height: 1.6; margin: 0 0 8px; overflow-wrap: anywhere; }
+.ed-msg-me { color: var(--ed-ink); font-weight: 500; white-space: pre-wrap; }
+.ed-msg-bot { color: var(--ed-body); padding-left: 14px; border-left: 2px solid var(--ed-rust); }
+.ed-msg-bot p, .ed-msg-bot ul, .ed-msg-bot ol { margin: 0 0 6px; }
+.ed-msg-bot > :last-child { margin-bottom: 0; }
+.ed-msg-bot ul { list-style: disc; padding-left: 18px; }
+.ed-msg-bot ol { list-style: decimal; padding-left: 18px; }
+.ed-msg-bot strong { color: var(--ed-ink); font-weight: 600; }
+.ed-msg-bot a { color: var(--ed-rust); text-decoration: none; border-bottom: 1px solid var(--ed-rust-soft); }
+.ed-msg-bot code { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 13px; background: var(--ed-paper); padding: 0 3px; }
+
+/* ---- ask-bar voice control ----------------------------------------------- */
+
 @keyframes ed-voice-pulse {
   0%   { transform: scale(1);   opacity: 1; }
   50%  { transform: scale(1.5); opacity: .45; }
   100% { transform: scale(1);   opacity: 1; }
 }
+.ed-voice { display: inline-flex; align-items: center; gap: 6px; }
 .ed-voice-dot { width: 6px; height: 6px; border-radius: 9999px; background: var(--ed-rust); flex: none; }
 .ed-voice[data-listening="true"] .ed-voice-dot { animation: ed-voice-pulse 1s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ed-voice[data-listening="true"] .ed-voice-dot { animation: none; }
+  .ed-proj > summary .ed-chev { transition: none; }
+}

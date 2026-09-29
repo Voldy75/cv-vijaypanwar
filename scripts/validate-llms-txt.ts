@@ -1,8 +1,8 @@
 /**
- * Build-time validation: checks that llms.txt stays in sync with i18n.ts content.
+ * Build-time validation: checks that llms.txt stays in sync with the site's content (src/content.json, src/about-i18n.ts).
  *
  * Defines "proof points" — key terms/phrases that MUST appear in llms.txt
- * because they represent real content from the website. When i18n.ts adds
+ * because they represent real content from the website. When the content adds
  * new sections or projects, add matching proof points here so the check
  * catches the drift on next build.
  *
@@ -30,57 +30,57 @@ interface ProofPoint {
 }
 
 const PROOF_POINTS: ProofPoint[] = [
-  // -- Projects (i18n.ts → projects) --
+  // -- Projects (content.json → projects) --
   {
-    source: 'i18n.ts → projects → Local RAG System',
+    source: 'content.json → projects → Local RAG System',
     terms: ['Local RAG System', 'vector embeddings', 'semantic search'],
   },
   {
-    source: 'i18n.ts → projects → Data Dashboard',
+    source: 'content.json → projects → Data Dashboard',
     terms: ['Data Dashboard'],
   },
   {
-    source: 'i18n.ts → projects → Create Shop Crave',
+    source: 'content.json → projects → Create Shop Crave',
     terms: ['Create, Shop & Crave'],
   },
 
-  // -- Experience (i18n.ts → experience) --
+  // -- Experience (content.json → roles) --
   {
-    source: 'i18n.ts → experience → Zrika',
+    source: 'content.json → roles → Zrika',
     terms: ['Zrika', 'payment infrastructure'],
   },
   {
-    source: 'i18n.ts → experience → NPCI',
+    source: 'content.json → roles → NPCI',
     terms: ['NPCI', 'UPI Lite', '350M'],
   },
   {
-    source: 'i18n.ts → experience → Rapipay',
+    source: 'content.json → roles → Rapipay',
     terms: ['Rapipay', 'merchant'],
   },
   {
-    source: 'i18n.ts → experience → ICICI',
+    source: 'content.json → roles → ICICI',
     terms: ['ICICI'],
   },
 
   // -- AI/ML Skills --
   {
-    source: 'i18n.ts → claudeCode',
+    source: 'about-i18n.ts → certifications → Anthropic',
     terms: ['RAG', 'multi-agent', 'LangSmith'],
   },
 
   // -- Education --
   {
-    source: 'i18n.ts → education → Purdue',
+    source: 'about-i18n.ts → education → Purdue',
     terms: ['Purdue'],
   },
 
   // -- Certifications --
   {
-    source: 'i18n.ts → certifications → Product School',
+    source: 'about-i18n.ts → certifications → Product School',
     terms: ['Product School'],
   },
   {
-    source: 'i18n.ts → certifications → Anthropic',
+    source: 'about-i18n.ts → certifications → Anthropic',
     terms: ['Claude Code in Action'],
   },
 ]
@@ -120,5 +120,5 @@ if (errors > 0) {
   )
   process.exit(1)
 } else {
-  console.log('✅ llms.txt is in sync with i18n content')
+  console.log('✅ llms.txt is in sync with the site content')
 }

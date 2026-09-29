@@ -1,0 +1,70 @@
+{
+  "name": "Vijay Panwar",
+  "location": "Mumbai, India",
+  "email": "vijaypanwar333@gmail.com",
+  "linkedin": "https://linkedin.com/in/vijay-panwar-835bb13a",
+  "github": "https://github.com/Voldy75",
+  "headline": "payments, product, applied AI",
+  "summary": "Senior Product Manager with 8+ years scaling consumer- and business-facing platforms to millions of users. Focus: AI/ML products, payment infrastructure, and 0-to-1 product development. Open to remote roles.",
+  "skills": ["0-to-1 Product Development", "AI/ML Product Strategy", "Payment Infrastructure", "Data-Driven Growth", "Cross-Platform Experience", "Agentic AI Systems"],
+  "nowPlaying": {
+    "title": "back to hogwarts",
+    "spotify": "https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ",
+    "apple": "https://music.apple.com/mz/playlist/wizarding-world-back-to-hogwarts-official-wizarding/pl.6e4d91593a164d0caa0e9182690a73fa"
+  },
+  "roles": [
+    {
+      "company": "Zrika (NexNebula Technologies)",
+      "short": "zrika",
+      "logo": "/logos/zrika.png",
+      "role": "senior product manager",
+      "period": "Dec 2024–Present",
+      "highlights": ["payment infrastructure as a service", "a UPI switch built from scratch, sub-50ms", "fraud models and AI copilots around it"]
+    },
+    {
+      "company": "NPCI (BHIM)",
+      "short": "NPCI (BHIM)",
+      "logo": "/logos/npci.png",
+      "role": "senior pm — UPI Lite",
+      "period": "Dec 2023–Nov 2024",
+      "highlights": ["4x adoption", "400K+ tx/day", "99.9% uptime", "350M+ users"]
+    },
+    {
+      "company": "Rapipay Fintech",
+      "short": "rapipay fintech",
+      "logo": "/logos/rapipay.png",
+      "role": "product manager — CICO",
+      "period": "Feb 2022–Sep 2023",
+      "highlights": ["600+ merchant activations/day", "60% faster onboarding"]
+    },
+    {
+      "company": "Burgon Technologies",
+      "short": "burgon technologies",
+      "logo": "",
+      "role": "co-founder / head of product",
+      "period": "Apr 2019–Jan 2022",
+      "highlights": ["martech for tier 4—5 markets", "40% revenue growth"]
+    },
+    {
+      "company": "ICICI Bank",
+      "short": "ICICI bank",
+      "logo": "/logos/icici.png",
+      "role": "deputy manager",
+      "period": "Feb 2015–Oct 2018",
+      "highlights": ["+35% customer activation"]
+    }
+  ],
+  "projects": [
+    { "title": "local RAG", "tags": "Python, Embeddings, Semantic Search", "blurb": "a retrieval system that keeps sensitive documents on your own machine — local embeddings, semantic search, no data leaving the laptop.", "href": "https://github.com/Voldy75/localRAG", "hrefLabel": "↗ github", "open": true },
+    { "title": "insight compass", "tags": "Data, Auto-reporting, LLM", "blurb": "point it at any dataset and it returns a one-page report — the charts worth showing, the numbers worth quoting, written up.", "href": "https://github.com/Voldy75/insight-compass-reports", "hrefLabel": "↗ github" },
+    { "title": "create, shop & crave", "tags": "AI, React, E-commerce APIs", "blurb": "an AI food assistant that plans the recipe, builds the basket, and orders the groceries in one pass.", "href": "https://create-shop-crave.vercel.app", "hrefLabel": "↗ live", "iframe": "https://create-shop-crave.vercel.app" },
+    { "title": "UPI payment switch", "tags": "UPI, FastAPI, Multi-tenant", "blurb": "a switch built from scratch: sub-50ms routing, multi-tenant by design, NPCI-compliant end to end.", "note": "private · walkthrough on request" },
+    { "title": "AI FRM engine", "tags": "ML, Real-time Inference, Risk", "blurb": "fraud scoring in the payment path — real-time inference, tuned so the false positives don't eat the funnel.", "note": "private · walkthrough on request" },
+    { "title": "AI copilots", "tags": "RAG, LangGraph, Guardrails", "blurb": "internal copilots for ops and support teams — retrieval, agent routing, and guardrails that hold up in production.", "note": "private · walkthrough on request" }
+  ],
+  "writing": [
+    { "title": "built an AI-powered payment switch from scratch", "blurb": "sub-50ms latency, multi-tenant fraud engine, NPCI-compliant routing." },
+    { "title": "4x UPI Lite adoption growth", "blurb": "how data-driven product decisions scale a 350M+ user platform." },
+    { "title": "why every PM should understand RAG pipelines", "blurb": "multi-agent systems and LLM observability, minus the hype." }
+  ]
+}
