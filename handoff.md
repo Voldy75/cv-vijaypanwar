@@ -232,3 +232,98 @@ project `b99a5ab2-3a94-47b2-ac9d-6b6ac7e694ba` ("Redesigning personal CV site").
    transcription was not. Worth one manual check in Chrome.
 5. `/en` still prerenders the OLD `App` homepage. It is not in the SPA router, so it
    is effectively an orphan. Decide whether to delete or repoint it.
+
+---
+
+# SESSION 4 ADDENDUM — favicon + README/repo description cleanup
+
+## What changed
+- **Favicon finished** (closes session-1 Next Step #4): `favicon.svg` already had the
+  VP-initials mark from session 1, but the raster fallbacks (`favicon.ico`,
+  `favicon-16x16.png`, `favicon-32x32.png`, `apple-touch-icon.png`, and the
+  unreferenced `android-chrome-192x192.png`) were still Santiago's illustrated
+  avatar. Regenerated all five from `public/foto-avatar-sm.webp` (Vijay's real
+  photo, already used as the homepage LCP image) using Python/Pillow (no
+  ImageMagick/sharp available in this environment — `sips` can't rasterize SVG,
+  so the photo was used directly rather than re-rastering the SVG mark). No code
+  changes needed; `index.html`'s favicon `<link>` tags were already correct.
+- **README.md rewritten.** It was still ~90% verbatim from the upstream
+  `santifer/cv-santiago` README: bilingual (EN/ES), badges linking to
+  `santifer.io`, "Chatbot 'Santi' ... responds in first person as Santiago",
+  a documented LLMOps dashboard / 71 evals / OpenAI Realtime voice / agentic
+  RAG stack that **is not what this fork's live ask-bar actually runs**
+  (per session 2/3: `api/chat.js` was rewritten on AI SDK v7 + Gemini, dropping
+  Langfuse/Supabase-RAG; voice is now the browser-native Web Speech API, not
+  OpenAI Realtime). Replaced it with a README that describes this repo as it
+  stands today — editorial homepage, ask-bar, voice input, Tetris easter egg —
+  and added an explicit **Credit** section linking back to the upstream repo
+  instead of mirroring its marketing copy. Also added a note flagging that
+  `src/ops/`, `evals/`, `src/useVoiceMode.ts`, and the RAG/Langfuse code under
+  `api/_shared/` are still present in the tree but not wired into the current
+  ask-bar (dead/legacy code, same files session 2 already flagged for possible
+  deletion).
+- **GitHub repo description + homepage updated** via `gh repo edit`:
+  description no longer says "Claude API" (chat runs on Gemini now) or implies
+  it's Santiago's; homepage URL changed from `santifer.io` to the real live URL
+  `https://cv-vijaypanwar.vercel.app`.
+- **Dropped the MIT license claim.** The old README said "License: MIT" but
+  there's no `LICENSE` file in the repo and `package.json` has no `license`
+  field (it's `"private": true`). Rather than invent a license, the new README
+  just states no license is published. Flagged below as an open question.
+
+## Verification
+- `git status` after regenerating favicons showed only the five binary files —
+  `dist/` is gitignored, so no rebuild was needed for this to take effect on
+  next deploy.
+- Visually inspected `favicon-32x32.png` and `apple-touch-icon.png` — both show
+  Vijay's photo, not Santiago's.
+- `gh repo view Voldy75/cv-vijaypanwar --json description,homepageUrl` confirmed
+  the new values are live on GitHub.
+- Commit: `75cfeee` on `main` (not yet pushed to `origin` — see Next Steps).
+
+## Dead ends — session 4
+- No ImageMagick (`convert`/`magick`), no `rsvg-convert`, no `sharp` npm
+  package, and no `cairosvg` available in this sandbox, so the SVG mark
+  couldn't be rasterized directly. `sips` (built into macOS) can resize/convert
+  raster images but not SVG. Used Python's Pillow (available) against the
+  existing photo instead — fine here since the goal was "my image instead,"
+  not specifically "the SVG mark rasterized."
+- `curl` to `vijaypanwar.dev` and `WebFetch` both failed DNS resolution
+  (`ENOTFOUND`) — that domain is referenced in `index.html`'s canonical tag and
+  `PrivacyPolicy.tsx` (as `vijaypanwar.io`, inconsistently) but is not actually
+  registered/pointed anywhere yet. This was already flagged as an open question
+  in session 1 ("What domain will the site use in production?") and is still
+  unresolved — used the known-good `cv-vijaypanwar.vercel.app` URL in the
+  README/repo description instead of guessing at a domain.
+
+## Next steps
+1. **Push the commit**: `git push origin main`, then redeploy
+   (`vercel --prod --yes`) so the new favicons actually reach production —
+   committing to `main` does not auto-deploy here (same Vercel GitHub
+   integration gap noted in session 1).
+2. Decide the real production domain (`vijaypanwar.dev` vs `.io` vs staying on
+   `.vercel.app`) and make `index.html`'s canonical, `PrivacyPolicy.tsx`, and
+   the README/repo homepage all agree — currently three different values exist
+   across the codebase.
+3. Content debt from session 1 is still untouched and still the biggest
+   remaining gap: `/career-ops-system`, `/ai-agent-jacobo`,
+   `/business-os-for-airtable`, `/programmatic-seo`, `/self-healing-chatbot`,
+   `/n8n-for-pms` still describe Santiago's own projects. Out of scope for this
+   session (favicon/README/repo-description only, per explicit instruction),
+   but it's the thing most likely to confuse a visitor who clicks through from
+   the (now-accurate) homepage into one of these pages.
+
+## Open questions
+- Should a real `LICENSE` be added (and under what terms), or is "private,
+  no license published" the intended final state?
+- Should `package.json`'s `"name": "cv-santiago"` be renamed to
+  `cv-vijaypanwar` (and the GitHub Actions / scripts that reference the old
+  name checked for breakage)? Not changed this session — wasn't part of the
+  favicon/README/description ask, and `gh repo edit` operates on the GitHub
+  repo settings independent of this field, but it's a visible leftover (e.g.
+  in `package-lock.json`, `npm install` output).
+- Delete `src/ops/`, `evals/`, `src/useVoiceMode.ts`,
+  `src/chatbot-i18n.ts`, and the RAG/Langfuse code in `api/_shared/` now that
+  the README no longer describes them as live features? They're harmless dead
+  weight either way, but keeping them makes the repo's actual surface area
+  harder to read at a glance.
