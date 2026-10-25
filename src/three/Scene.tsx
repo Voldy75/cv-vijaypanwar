@@ -14,8 +14,8 @@
 import { useEffect, useMemo, useRef, type RefObject } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
-import { EffectComposer, Bloom, DepthOfField, SMAA } from '@react-three/postprocessing'
-import type { DepthOfFieldEffect } from 'postprocessing'
+import { EffectComposer, Bloom, DepthOfField, SMAA, ToneMapping } from '@react-three/postprocessing'
+import { ToneMappingMode, type DepthOfFieldEffect } from 'postprocessing'
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { buildPlaceholder } from './placeholder'
@@ -34,7 +34,8 @@ const CAM = {
   mobileShift: 0.14, // phones: shift subject left during the résumé (fraction of view distance)
   fov: 30,
 }
-// Auto-framing, used when the model has no CameraAction clip
+// Auto-framing, used when the model has no CameraAction clip. A model can override the role-stop
+// values per anchor with glTF extras on its focus-k empties: cameraDistance, cameraOffset, cameraLift.
 const FRAME = {
   heroDistance: 7.4,
   heroDrop: 0.55, // look this far below focus-0 so the face sits above the hero text
@@ -177,10 +178,11 @@ function Rig({ model, focusRef, uRef, reduced }: { model: Model; focusRef: Ref<T
         return { pos: p.clone().add(new THREE.Vector3(0, 0.1, FRAME.heroDistance)), target: p.clone().add(new THREE.Vector3(0, -FRAME.heroDrop, 0)) }
       }
       if (i === STOPS) return { pos: FRAME.worksPosition.clone(), target: FRAME.worksTarget.clone() }
+      const ud = (a?.userData ?? {}) as { cameraDistance?: number; cameraOffset?: number; cameraLift?: number }
       const out = new THREE.Vector3(p.x, 0, p.z).normalize().lerp(fwd, 0.5).normalize()
-      const pos = p.clone().addScaledVector(out, FRAME.nodeDistance).addScaledVector(up, FRAME.nodeLift)
+      const pos = p.clone().addScaledVector(out, ud.cameraDistance ?? FRAME.nodeDistance).addScaledVector(up, ud.cameraLift ?? FRAME.nodeLift)
       const right = new THREE.Vector3().subVectors(p, pos).normalize().cross(up).normalize()
-      return { pos, target: p.clone().addScaledVector(right, FRAME.nodeOffset) }
+      return { pos, target: p.clone().addScaledVector(right, ud.cameraOffset ?? FRAME.nodeOffset) }
     })
   }, [rig, model])
   const path = useMemo(() => new THREE.CatmullRomCurve3(shots.map((s) => s.pos), false, 'centripetal'), [shots])
@@ -301,12 +303,17 @@ function PlaceholderModel(props: { focusRef: Ref<THREE.Vector3>; uRef: Ref<numbe
 }
 
 function GlbModel(props: { focusRef: Ref<THREE.Vector3>; uRef: Ref<number>; reduced: boolean }) {
-  const { scene, animations } = useGLTF(MODEL_URL)
+  // no Draco/Meshopt: their decoders are WebAssembly or a third-party CDN, both blocked by the CSP
+  const { scene, animations } = useGLTF(MODEL_URL, false, false)
   const model = useMemo<Model>(() => ({ root: scene.clone(true), animations }), [scene, animations])
   return <Rig model={model} {...props} />
 }
 
-/** DoF → Bloom → SMAA. Focus follows the rig; the hero and projects get a wide focus, roles a tight one. */
+/**
+ * DoF → Bloom → ACES tone mapping → SMAA. Focus follows the rig; the hero and projects get a wide
+ * focus, roles a tight one. The composer switches the renderer's own tone mapping off while it runs,
+ * so it's re-applied here — otherwise full and lite modes would render with different contrast.
+ */
 function Post({ focusRef, uRef }: { focusRef: Ref<THREE.Vector3>; uRef: Ref<number> }) {
   const dof = useRef<DepthOfFieldEffect>(null)
   useFrame(() => {
@@ -322,6 +329,7 @@ function Post({ focusRef, uRef }: { focusRef: Ref<THREE.Vector3>; uRef: Ref<numb
     <EffectComposer multisampling={0} stencilBuffer={false}>
       <DepthOfField ref={dof} target={[0, 0, 0]} focusRange={POST.wideRange} bokehScale={POST.wideBokeh} height={480} />
       <Bloom mipmapBlur intensity={POST.bloomIntensity} luminanceThreshold={POST.bloomThreshold} luminanceSmoothing={0.3} />
+      <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
       <SMAA />
     </EffectComposer>
   )

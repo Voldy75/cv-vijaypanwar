@@ -104,6 +104,13 @@ three.js is about 355 KB gzipped, so it lives in its own chunk (`vendor-three`) 
 
 ### Your own 3D model
 
+**The current model** (`public/models/me.glb`) is an original stylized clay bust of Vijay, built from
+his photo by `blender/build_vijay.py` (Blender's Python API; nothing from sen-3d-resume's model).
+To change it, edit the constants or shapes in that script and re-run it:
+`python blender/build_vijay.py --out public/models/me.glb` (needs Blender 4.2+, or `pip install bpy`).
+Each `focus-k` empty can also carry `cameraDistance`, `cameraOffset` and `cameraLift` glTF extras
+to tune that stop's auto-framed camera.
+
 Put a `.glb` at **`public/models/me.glb`** and redeploy. The page finds it and uses it instead of the
 placeholder; nothing else to change. The code looks objects up by name:
 
