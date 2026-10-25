@@ -970,7 +970,7 @@ html:has(main.td), html:has(main.td) body { background: #0a0e16; color-scheme: d
 /* ---- fixed layers, back to front: stage → scrim → rail → content → chrome → grain ---- */
 
 /* The gradient behind the canvas is also the no-WebGL fallback */
-.td-stage { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(#3d6b69, #7f9a8c 55%, #e2d5b6); }
+.td-stage { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(#6f906f, #a5b294 55%, #dbd3b5); }
 .td-stage canvas { opacity: 0; transition: opacity .9s ease; }
 .td-stage.is-ready canvas { opacity: 1; }
 
@@ -981,7 +981,11 @@ html:has(main.td), html:has(main.td) body { background: #0a0e16; color-scheme: d
   background: rgba(10,14,22,.14); backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
   -webkit-mask: linear-gradient(to right, transparent 0%, #000 46%); mask: linear-gradient(to right, transparent 0%, #000 46%);
 }
-/* Film grain: an SVG noise tile, multiplied over everything (no second WebGL context) */
+/* Film grain: sen-3d-resume's noise shader on its own canvas (NoiseOverlay.tsx), multiplied over
+   everything. The SVG tile below is the fallback until that canvas is up, or without WebGL. */
+.td-noise-layer { position: fixed; inset: 0; z-index: 30; pointer-events: none; mix-blend-mode: multiply; overflow: hidden; }
+.td-noise-layer canvas { width: 100% !important; height: 100% !important; }
+.td.has-noise .td-grain { display: none; }
 .td-grain {
   position: fixed; inset: -50%; z-index: 30; pointer-events: none; opacity: .22; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");

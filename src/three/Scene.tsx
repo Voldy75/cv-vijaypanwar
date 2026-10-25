@@ -52,7 +52,7 @@ type Ref<T> = RefObject<T>
 
 /** Inside-out sphere with a vertical gradient; steep so the narrow FOV still sees the full blend. */
 function Sky() {
-  const uniforms = useMemo(() => ({ uTop: { value: new THREE.Color(SKY.top) }, uBottom: { value: new THREE.Color(SKY.bottom) }, uSteep: { value: 1.3 } }), [])
+  const uniforms = useMemo(() => ({ uTop: { value: new THREE.Color(SKY.top) }, uBottom: { value: new THREE.Color(SKY.bottom) }, uSteep: { value: 1.4 } }), [])
   return (
     <mesh scale={100}>
       <sphereGeometry args={[1, 32, 32]} />
@@ -65,7 +65,14 @@ function Sky() {
           void main() { vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`}
         fragmentShader={/* glsl */ `
           uniform vec3 uTop; uniform vec3 uBottom; uniform float uSteep; varying vec3 vDir;
-          void main() { float t = clamp(vDir.y * uSteep * 0.5 + 0.5, 0.0, 1.0); gl_FragColor = vec4(mix(uBottom, uTop, t), 1.0); }`}
+          void main() {
+            float t = clamp(vDir.y * uSteep * 0.5 + 0.5, 0.0, 1.0);
+            gl_FragColor = vec4(mix(uBottom, uTop, t), 1.0);
+            // same output transform as every other material, so lite mode (no effects pass)
+            // and full mode show the same sky
+            #include <tonemapping_fragment>
+            #include <colorspace_fragment>
+          }`}
       />
     </mesh>
   )

@@ -19,5 +19,5 @@ export const FRAMES_PER_NODE = 50
 /** A timeline entry "arrives" when its top reaches this fraction of the viewport height. */
 export const NODE_LINE = 0.3
 
-/** Backdrop gradient (teal sky → sand). The page's fallback background uses the same pair. */
-export const SKY = { top: '#3d6b69', bottom: '#e2d5b6' }
+/** Backdrop gradient, sage → sand (sen-3d-resume's palette). Keep in step with .td-stage in index.css and the /3d theme colour in index.html. */
+export const SKY = { top: '#6f906f', bottom: '#dbd3b5' }

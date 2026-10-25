@@ -13,6 +13,7 @@ import { ROLE_POINTS, SKY } from './config'
 import { useHydrated } from '../useHydrated'
 
 const Stage = lazy(() => import('./Stage'))
+const NoiseOverlay = lazy(() => import('./NoiseOverlay'))
 const AskBar = lazy(() => import('../editorial/AskBar'))
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -159,6 +160,8 @@ export default function ThreeD() {
   const hydrated = useHydrated()
   const [ready, setReady] = useState(false)
   const onReady = useCallback(() => setReady(true), [])
+  const [noise, setNoise] = useState(false)
+  const onNoise = useCallback(() => setNoise(true), [])
 
   useEffect(() => {
     document.title = 'vijay panwar — 3D résumé'
@@ -183,7 +186,7 @@ export default function ThreeD() {
   })
 
   return (
-    <main className="td">
+    <main className={`td${noise ? ' has-noise' : ''}`}>
       <div className={`td-stage${ready ? ' is-ready' : ''}`} aria-hidden="true">
         {hydrated && <Suspense fallback={null}><Stage onReady={onReady} /></Suspense>}
       </div>
@@ -191,6 +194,11 @@ export default function ThreeD() {
       <motion.div className="td-rail" style={{ opacity: rail }} aria-hidden="true" />
       <motion.div className="td-fog" style={{ opacity: fog }} aria-hidden="true" />
       <div className="td-grain" aria-hidden="true" />
+      {hydrated && ready && (
+        <div className="td-noise-layer" aria-hidden="true">
+          <Suspense fallback={null}><NoiseOverlay onReady={onNoise} /></Suspense>
+        </div>
+      )}
 
       <motion.div className="td-chrome" style={{ opacity: chrome }} aria-hidden="true">
         <div className="td-frame" />
