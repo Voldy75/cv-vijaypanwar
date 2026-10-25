@@ -1,0 +1,6 @@
+mansalva-400.woff2           Mansalva, by Carolina Short          — SIL Open Font License 1.1
+cormorant-upright-*.woff2    Cormorant Upright, by Christian Thalmann — SIL Open Font License 1.1
+libre-franklin-latin.woff2   Libre Franklin, by Impallari Type     — SIL Open Font License 1.1
+jetbrains-mono-latin.woff2   JetBrains Mono, by JetBrains          — SIL Open Font License 1.1
+
+Full license text: https://openfontlicense.org/open-font-license-official-text/

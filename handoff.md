@@ -266,3 +266,24 @@ The site is now four pages: `/`, `/playbook`, `/about`, `/privacy`. Santiago's c
 - "recent writing" links go to the LinkedIn posts feed. Add each post's URL as `href` in
   content.json to link the posts directly.
 - `src/about-i18n.ts` still keeps its own copy of the timeline/projects for /about.
+
+---
+
+# SESSION 5 ADDENDUM — 3D résumé at /3d
+
+Built alongside the homepage (not replacing it), after github.com/dayinji/sen-3d-resume (code MIT;
+Sen's model/name/résumé/logos are NOT reusable — see that repo's NOTICE). Code in `src/three/`;
+README → "The 3D résumé" has the file map and the model contract.
+
+- Stand-in model built in code (clay hub with eyes + one network node per role). Dropping
+  `public/models/me.glb` swaps it in; verified with an exported test glb that has its own
+  `CameraAction` (camera followed the clip, not the auto-framing).
+- `/3d` is noindex until it replaces `/`. No link to it from the homepage yet.
+- three.js sits in its own `vendor-three` chunk. Two traps in `vite.config.ts` manualChunks:
+  `'@react-three'` contains `'react'` (would drag three into vendor-react), and Vite's preload helper
+  must be pinned to vendor-react or every page preloads three.
+- CSP now allows `blob:` in img-src and connect-src: GLTFLoader loads embedded textures that way.
+- Pre-existing, not fixed: zod (via the AI SDK) sits in vendor-react on every page, and its
+  `new Function` feature-check shows up as a harmless CSP "eval" report in the console.
+- Headless testing: software WebGL runs this at ~1 fps with full effects, so screenshots can catch
+  half-drawn frames. Use a local server that applies vercel.json rewrites (vite preview doesn't).

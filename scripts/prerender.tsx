@@ -17,6 +17,7 @@ import { StaticRouter, Routes, Route } from 'react-router-dom';
 import Critters from 'critters';
 import EditorialIndex from '../src/editorial/Index.tsx';
 import Playbook from '../src/editorial/Playbook.tsx';
+import ThreeD from '../src/three/ThreeD.tsx';
 import GlobalNav from '../src/GlobalNav.tsx';
 import AboutPage from '../src/AboutPage.tsx';
 import PrivacyPolicy from '../src/PrivacyPolicy.tsx';
@@ -29,6 +30,7 @@ const indexPath = resolve(distDir, 'index.html');
 const ELEMENTS: Record<string, React.ReactElement> = {
   '/': <EditorialIndex />,
   '/playbook': <Playbook />,
+  '/3d': <ThreeD />,
   '/about': <AboutPage lang="en" />,
   '/privacy': <PrivacyPolicy lang="en" />,
 };

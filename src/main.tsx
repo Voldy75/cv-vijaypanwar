@@ -8,6 +8,7 @@ import { SITE_HOST } from './site'
 
 const EditorialIndex = lazy(() => import('./editorial/Index'))
 const Playbook = lazy(() => import('./editorial/Playbook'))
+const ThreeD = lazy(() => import('./three/ThreeD'))
 const AskChat = lazy(() => import('./AskChat'))
 const MusicToggle = lazy(() => import('./MusicToggle'))
 const PrivacyPolicy = lazy(() => import('./PrivacyPolicy'))
@@ -80,7 +81,7 @@ function GlobalMusic() {
 }
 
 /** Routes that ship their own chrome (own header, own ask-bar). */
-const BARE_ROUTES = ['/', '/playbook']
+const BARE_ROUTES = ['/', '/playbook', '/3d']
 const isBare = (p: string) => BARE_ROUTES.includes(p)
 
 function ConditionalNav() {
@@ -145,6 +146,7 @@ const app = (
           <Routes>
             <Route path="/" element={<EditorialIndex />} />
             <Route path="/playbook" element={<Playbook />} />
+            <Route path="/3d" element={<ThreeD />} />
             <Route path="/about" element={<AboutPage lang="en" />} />
             <Route path="/privacy" element={<PrivacyPolicy lang="en" />} />
             <Route path="*" element={<NotFound />} />

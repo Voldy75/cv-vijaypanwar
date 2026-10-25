@@ -33,6 +33,14 @@ export const SITE_PAGES: SitePage[] = [
     editorial: true,
   },
   {
+    // experimental: noindex until it replaces the homepage
+    path: '/3d',
+    title: 'Vijay Panwar — 3D résumé',
+    description: 'A scroll-driven 3D résumé: payments, product and applied AI, one camera stop per role.',
+    indexable: false,
+    editorial: true,
+  },
+  {
     path: '/about',
     title: 'Vijay Panwar | Senior Product Manager · AI/ML Product Leader',
     description: 'Senior Product Manager with 8+ years scaling consumer & business platforms to millions of users. Expert in 0-to-1 product development, AI/ML products, and payment systems.',
